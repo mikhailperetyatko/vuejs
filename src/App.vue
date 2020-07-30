@@ -1,10 +1,17 @@
 <template>
 <div class="content__catalog">
-  <ProductFilter :category-id.sync="filters.categoryId" :price-from.sync="filters.priceFrom" :price-to.sync="filters.priceTo" />
+  <ProductFilter
+    :category-id.sync="filters.categoryId"
+    :price-from.sync="filters.priceFrom"
+    :price-to.sync="filters.priceTo"
+    :color.sync="filters.color"
+    :colors="productColors"
+  />
   <section class="catalog">
     <ProductList :products="products" />
     <BasePagination :current-page="page" :per-page="productsPerPage" :amount="productsAmount" v-model="page" />
   </section>
+  {{ productColors }}
 </div>
 </template>
 
@@ -45,6 +52,10 @@ export default {
     },
     productsAmount() {
       return this.filteredProducts.length;
+    },
+    productColors() {
+      const colors = products.map((product) => (product.colors)).join(',').split(',');
+      return colors.filter((color, index) => (colors.indexOf(color) === index));
     },
   },
   components: {
