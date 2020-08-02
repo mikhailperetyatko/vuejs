@@ -1,68 +1,40 @@
 <template>
-<div class="content__catalog">
-  <ProductFilter
-    :filters.sync="filters"
-    :colors="productColors"
-  />
-  <section class="catalog">
-    <ProductList :products="products" />
-    <BasePagination v-model="page"
-      :current-page="page"
-      :per-page="productsPerPage"
-      :amount="productsAmount"
-    />
-  </section>
-</div>
+  <component :is="currentPageComponent"/>
 </template>
 
 <script>
-import products from './data/products';
-import ProductList from './components/ProductList.vue';
-import BasePagination from './components/BasePagination.vue';
-import ProductFilter from './components/ProductFilter.vue';
+import MainPage from '@/pages/MainPage.vue';
+import ProductPage from '@/pages/ProductPage.vue';
+import NotFoundPage from '@/pages/NotFoundPage.vue';
+
+const routes = {
+  main: 'MainPage',
+  productPage: 'ProductPage',
+};
 
 export default {
   name: 'App',
   data() {
     return {
-      page: 1,
-      productsPerPage: 6,
-      filters: {
-        priceFrom: 0,
-        priceTo: 0,
-        categoryId: 0,
-        color: '',
-      },
+      currentPage: 'main',
+      currentPageParams: {},
     };
   },
   computed: {
-    filteredProducts() {
-      return products.filter(
-        (item) => (
-          (this.filters.priceFrom === 0 || item.price >= this.filters.priceFrom)
-          && (this.filters.priceTo === 0 || item.price <= this.filters.priceTo)
-          && (this.filters.categoryId === 0 || item.categoryId === this.filters.categoryId)
-          && (!this.filters.color.length || item.colors.indexOf(this.filters.color) > -1)
-        ),
-      );
+    currentPageComponent() {
+      return routes[this.currentPage] || 'NotFoundPage';
     },
-    products() {
-      const offset = (this.page - 1) * this.productsPerPage;
-      return this.filteredProducts.slice(offset, offset + this.productsPerPage);
-    },
-    productsAmount() {
-      return this.filteredProducts.length;
-    },
-    productColors() {
-      const colors = products.map((product) => (product.colors)).join(',').split(',');
-      // фильтруем дубли
-      return colors.filter((color, index) => (colors.indexOf(color) === index));
+  },
+  methods: {
+    gotoPage(pageName, pageparams) {
+      this.currentPage = pageName;
+      this.currentPageParams = pageparams;
     },
   },
   components: {
-    ProductList,
-    BasePagination,
-    ProductFilter,
+    MainPage,
+    ProductPage,
+    NotFoundPage,
   },
 };
 </script>
