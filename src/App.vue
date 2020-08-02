@@ -1,18 +1,28 @@
 <template>
-<div class="content__catalog">
-  <ProductFilter
-    :filters.sync="filters"
-    :colors="productColors"
-  />
-  <section class="catalog">
-    <ProductList :products="products" />
-    <BasePagination v-model="page"
-      :current-page="page"
-      :per-page="productsPerPage"
-      :amount="productsAmount"
+<main class="content container">
+  <div class="content__top content__top--catalog">
+    <h1 class="content__title">
+      Каталог
+    </h1>
+    <span class="content__info">
+      Количество найденных товаров: {{ productsAmount }} шт.
+    </span>
+  </div>
+  <div class="content__catalog">
+    <ProductFilter
+      :filters.sync="filters"
+      :colors="productColors"
     />
-  </section>
-</div>
+    <section class="catalog">
+      <ProductList :products="products" />
+      <BasePagination v-model="page"
+        :current-page="page"
+        :per-page="productsPerPage"
+        :amount="productsAmount"
+      />
+    </section>
+  </div>
+</main>
 </template>
 
 <script>
@@ -54,9 +64,7 @@ export default {
       return this.filteredProducts.length;
     },
     productColors() {
-      const colors = products.map((product) => (product.colors)).join(',').split(',');
-      // фильтруем дубли
-      return colors.filter((color, index) => (colors.indexOf(color) === index));
+      return [...(new Set(products.reduce((accumulator, product) => [...accumulator, ...product.colors], [])))];
     },
   },
   components: {
