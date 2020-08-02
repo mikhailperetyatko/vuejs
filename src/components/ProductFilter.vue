@@ -1,15 +1,15 @@
 <template>
 <aside class="filter">
   <h2 class="filter__title">Фильтры</h2>
-  <form class="filter__form form" action="#" method="get">
+  <form class="filter__form form" action="#" method="get" @submit.prevent="submit">
     <fieldset class="form__block">
       <legend class="form__legend">Цена</legend>
       <label class="form__label form__label--price">
-        <input class="form__input" type="text" name="min-price" v-model.number="currentPriceFrom">
+        <input class="form__input" type="text" name="min-price" v-model.number="currentFilters.priceFrom">
         <span class="form__value">От</span>
       </label>
       <label class="form__label form__label--price">
-        <input class="form__input" type="text" name="max-price" v-model.number="currentPriceTo">
+        <input class="form__input" type="text" name="max-price" v-model.number="currentFilters.priceTo">
         <span class="form__value">До</span>
       </label>
     </fieldset>
@@ -17,7 +17,7 @@
     <fieldset class="form__block">
       <legend class="form__legend">Категория</legend>
       <label class="form__label form__label--select">
-        <select class="form__select" type="text" name="category" v-model.number="currentCategory">
+        <select class="form__select" type="text" name="category" v-model.number="currentFilters.categoryId">
           <option value="0">Все категории</option>
           <option v-for="category in categories" :key="category.id" :value="category.id">{{ category.title }}</option>
         </select>
@@ -29,16 +29,17 @@
       <ul class="colors">
         <li class="colors__item" v-for="color in colors" :key="color">
           <label class="colors__label">
-            <input class="colors__radio sr-only" type="radio" name="color" :value="color" v-model="currentColor">
+            <input class="colors__radio sr-only" type="radio" name="color" :value="color" v-model="currentFilters.color">
             <span class="colors__value" :style="'background-color: ' + color"></span>
           </label>
         </li>
       </ul>
     </fieldset>
-    <button class="filter__submit button button--primery" @click.prevent="submit">
+
+    <button class="filter__submit button button--primery" type="submit">
       Применить
     </button>
-    <button class="filter__reset button button--second" type="button">
+    <button class="filter__reset button button--second" type="button" @click.prevent="reset">
       Сбросить
     </button>
   </form>
@@ -50,28 +51,30 @@ import categories from '../data/categories';
 
 export default {
   name: 'ProductFilter',
-  data() {
-    return {
-      currentCategory: 0,
-      currentPriceFrom: 0,
-      currentPriceTo: 0,
-      currentColor: '',
-    };
-  },
   props: [
     'colors',
+    'filters',
   ],
+  data() {
+    return {
+      currentFilters: { ...this.filters },
+    };
+  },
   computed: {
     categories() {
       return categories;
     },
   },
+  mounted() {
+    this.emptyFilters = { ...this.filters };
+  },
   methods: {
     submit() {
-      this.$emit('update:categoryId', this.currentCategory);
-      this.$emit('update:priceFrom', this.currentPriceFrom);
-      this.$emit('update:priceTo', this.currentPriceTo);
-      this.$emit('update:color', this.currentColor);
+      this.$emit('update:filters', { ...this.currentFilters });
+    },
+    reset() {
+      this.currentFilters = { ...this.emptyFilters };
+      this.submit();
     },
   },
 };

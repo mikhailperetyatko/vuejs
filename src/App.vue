@@ -1,17 +1,17 @@
 <template>
 <div class="content__catalog">
   <ProductFilter
-    :category-id.sync="filters.categoryId"
-    :price-from.sync="filters.priceFrom"
-    :price-to.sync="filters.priceTo"
-    :color.sync="filters.color"
+    :filters.sync="filters"
     :colors="productColors"
   />
   <section class="catalog">
     <ProductList :products="products" />
-    <BasePagination :current-page="page" :per-page="productsPerPage" :amount="productsAmount" v-model="page" />
+    <BasePagination v-model="page"
+      :current-page="page"
+      :per-page="productsPerPage"
+      :amount="productsAmount"
+    />
   </section>
-  {{ productColors }}
 </div>
 </template>
 
@@ -55,6 +55,7 @@ export default {
     },
     productColors() {
       const colors = products.map((product) => (product.colors)).join(',').split(',');
+      // фильтруем дубли
       return colors.filter((color, index) => (colors.indexOf(color) === index));
     },
   },
