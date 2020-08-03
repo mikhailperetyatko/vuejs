@@ -1,6 +1,6 @@
 <template>
 <li class="catalog__item">
-  <a class="catalog__pic" href="#">
+  <a class="catalog__pic" href="#" @click.prevent="gotoPage('productPage', product.id)">
     <img :src="product.img" :alt="product.name">
   </a>
   <h3 class="catalog__title">
@@ -23,6 +23,8 @@
 </li>
 </template>
 <script>
+import eventBus from '@/eventBus';
+
 export default {
   name: 'ProductItem',
   props: [
@@ -32,6 +34,12 @@ export default {
     return {
       currentColor: this.product.colors[0],
     };
+  },
+  methods: {
+    gotoPage(pageName, pageParams) {
+      console.log(eventBus);
+      eventBus.$emit('gotoPage', pageName, pageParams);
+    },
   },
 };
 </script>
