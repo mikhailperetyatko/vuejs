@@ -10,6 +10,7 @@
   </div>
   <div class="content__catalog">
     <ProductFilter
+      @resetPagination="page = 1"
       :filters.sync="filters"
       :colors="productColors"
     />
@@ -33,15 +34,26 @@ import ProductFilter from './components/ProductFilter.vue';
 
 export default {
   name: 'App',
+  props: {
+    defaultFilterValues: {
+      type: Object,
+      default: () => ({
+        priceFrom: 100,
+        priceTo: 100000,
+        categoryIds: [],
+        colors: [],
+      }),
+    },
+  },
   data() {
     return {
       page: 1,
       productsPerPage: 6,
       filters: {
-        priceFrom: 0,
-        priceTo: 0,
-        categoryId: 0,
-        color: '',
+        priceFrom: this.defaultFilterValues.priceFrom,
+        priceTo: this.defaultFilterValues.priceTo,
+        categoryIds: this.defaultFilterValues.categoryIds,
+        colors: this.defaultFilterValues.colors,
       },
     };
   },
@@ -49,10 +61,13 @@ export default {
     filteredProducts() {
       return products.filter(
         (item) => (
-          (this.filters.priceFrom === 0 || item.price >= this.filters.priceFrom)
-          && (this.filters.priceTo === 0 || item.price <= this.filters.priceTo)
-          && (this.filters.categoryId === 0 || item.categoryId === this.filters.categoryId)
-          && (!this.filters.color.length || item.colors.indexOf(this.filters.color) > -1)
+          (!this.filters.priceFrom || item.price >= this.filters.priceFrom)
+          && (!this.filters.priceTo || item.price <= this.filters.priceTo)
+          && (!this.filters.categoryIds.length || this.filters.categoryIds.indexOf(item.categoryId) > -1)
+          && (
+            !this.filters.colors.length
+            || item.colors.filter((itemColor) => this.filters.colors.indexOf(itemColor) > -1).length
+          )
         ),
       );
     },
