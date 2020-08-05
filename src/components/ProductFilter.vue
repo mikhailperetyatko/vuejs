@@ -17,7 +17,7 @@
 
     <fieldset class="form__block">
       <legend class="form__legend">Категории</legend>
-      <button class="button button--second" type="button" @click.prevent="categoryVisible = categoryVisible ? false : true">{{ categoryVisible ? 'Скрыть' : 'Отобразить' }}</button>
+      <button class="button button--second" type="button" @click.prevent="categoryVisible = !categoryVisible">{{ categoryVisible ? 'Скрыть' : 'Отобразить' }}</button>
       <transition name="custom-classes-transition" enter-active-class="animated flipInX" leave-active-class="animated flipOutX">
         <label class="form__label form__label--input" v-if="categoryVisible">
           <div v-for="category in categories" :key="category.id" >
