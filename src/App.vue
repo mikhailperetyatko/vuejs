@@ -1,11 +1,12 @@
 <template>
-  <component :is="currentPageComponent"/>
+  <component :is="currentPageComponent" :pageParams="currentPageParams"/>
 </template>
 
 <script>
 import MainPage from '@/pages/MainPage.vue';
 import ProductPage from '@/pages/ProductPage.vue';
 import NotFoundPage from '@/pages/NotFoundPage.vue';
+import eventBus from '@/eventBus';
 
 const routes = {
   main: 'MainPage',
@@ -14,22 +15,14 @@ const routes = {
 
 export default {
   name: 'App',
-  props: {
-    defaultFilterValues: {
-      type: Object,
-      default: () => ({
-        priceFrom: 100,
-        priceTo: 100000,
-        categoryIds: [],
-        colors: [],
-      }),
-    },
-  },
   data() {
     return {
       currentPage: 'main',
       currentPageParams: {},
     };
+  },
+  created() {
+    eventBus.$on('gotoPage', (pageName, pageParams) => this.gotoPage(pageName, pageParams));
   },
   computed: {
     currentPageComponent() {
@@ -37,7 +30,7 @@ export default {
     },
   },
   methods: {
-    gotoPage(pageName, pageparams) {
+    gotoPage(pageName, pageparams = {}) {
       this.currentPage = pageName;
       this.currentPageParams = pageparams;
     },
