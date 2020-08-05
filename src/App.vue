@@ -14,6 +14,17 @@ const routes = {
 
 export default {
   name: 'App',
+  props: {
+    defaultFilterValues: {
+      type: Object,
+      default: () => ({
+        priceFrom: 100,
+        priceTo: 100000,
+        categoryIds: [],
+        colors: [],
+      }),
+    },
+  },
   data() {
     return {
       currentPage: 'main',
