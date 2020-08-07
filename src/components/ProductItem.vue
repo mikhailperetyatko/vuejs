@@ -9,7 +9,7 @@
     </a>
   </h3>
   <span class="catalog__price">
-    {{ numberFormat(product.price) }} ₽
+    {{ product.price | numberFormat }} ₽
   </span>
   <ProductColors :colors="product.colors" />
 </li>
@@ -28,6 +28,9 @@ export default {
     return {
       currentColor: this.product.colors[0],
     };
+  },
+  filters: {
+    numberFormat,
   },
   methods: {
     gotoPage,

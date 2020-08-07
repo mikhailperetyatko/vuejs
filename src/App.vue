@@ -30,7 +30,7 @@ export default {
     },
   },
   methods: {
-    gotoPage(pageName, pageparams = {}) {
+    gotoPage(pageName, pageparams) {
       this.currentPage = pageName;
       this.currentPageParams = pageparams;
     },

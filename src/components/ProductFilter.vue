@@ -30,14 +30,10 @@
 
     <fieldset class="form__block">
       <legend class="form__legend">Цвет</legend>
-      <ul class="colors">
-        <li class="colors__item" v-for="color in colors" :key="color">
-          <label class="colors__label">
-            <input class="colors__radio sr-only" type="checkbox" :name="color" :value="color" v-model="currentFilters.colors">
-            <span class="colors__value" :style="'background-color: ' + color"></span>
-          </label>
-        </li>
-      </ul>
+      <ProductColors :color-checked.sync="currentFilters.colors"
+        :colors="colors"
+        :input-type="'checkbox'"
+      />
     </fieldset>
 
     <button class="filter__submit button button--primery" type="submit">
@@ -52,6 +48,7 @@
 
 <script>
 import categories from '@/data/categories';
+import ProductColors from '@/components/ProductColors.vue';
 
 export default {
   name: 'ProductFilter',
@@ -62,7 +59,7 @@ export default {
   data() {
     return {
       currentFilters: { ...this.filters },
-      categoryVisible: false,
+      categoryVisible: Object.entries(this.filters).filter((filter) => filter[1].length).length,
     };
   },
   computed: {
@@ -71,7 +68,20 @@ export default {
     },
   },
   mounted() {
-    this.emptyFilters = { ...this.filters };
+    this.emptyFilters = Object.fromEntries(Object.entries(this.filters).map((filter) => {
+      const element = { ...filter };
+      switch (typeof element[1]) {
+        case 'number':
+          element[1] = 0;
+          break;
+        case 'string':
+          element[1] = '';
+          break;
+        default:
+          element[1] = [];
+      }
+      return element;
+    }));
   },
   methods: {
     submit() {
@@ -82,6 +92,9 @@ export default {
       this.$emit('resetPagination');
       this.submit();
     },
+  },
+  components: {
+    ProductColors,
   },
 };
 </script>

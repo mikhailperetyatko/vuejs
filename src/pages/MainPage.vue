@@ -34,7 +34,7 @@ import ProductFilter from '@/components/ProductFilter.vue';
 
 export default {
   props: {
-    defaultFilterValues: {
+    pageParams: {
       type: Object,
       default: () => ({
         priceFrom: 100,
@@ -49,10 +49,10 @@ export default {
       page: 1,
       productsPerPage: 6,
       filters: {
-        priceFrom: this.defaultFilterValues.priceFrom,
-        priceTo: this.defaultFilterValues.priceTo,
-        categoryIds: this.defaultFilterValues.categoryIds,
-        colors: this.defaultFilterValues.colors,
+        priceFrom: this.pageParams.priceFrom ?? 0,
+        priceTo: this.pageParams.priceTo ?? 0,
+        categoryIds: this.pageParams.categoryIds ?? [],
+        colors: this.pageParams.colors ?? [],
       },
     };
   },
