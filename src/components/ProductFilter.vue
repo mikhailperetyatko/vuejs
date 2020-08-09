@@ -62,18 +62,7 @@
             v-if="categoryVisible"
             class="form__label form__label--input"
           >
-            <div
-              v-for="category in categories"
-              :key="category.id"
-            >
-              <input
-                v-model="currentFilters.categoryIds"
-                type="checkbox"
-                :value="category.id"
-                :name="`category${category.id}`"
-              >
-              {{ category.title }}
-            </div>
+            <ProductCategories :categories-checked.sync="currentFilters.categoryIds" />
           </label>
         </transition>
       </fieldset>
@@ -111,13 +100,14 @@
 </template>
 
 <script>
-import categories from '@/data/categories';
 import ProductColors from '@/components/ProductColors.vue';
+import ProductCategories from '@/components/ProductCategories.vue';
 
 export default {
   name: 'ProductFilter',
   components: {
     ProductColors,
+    ProductCategories,
   },
   props: {
     colors: {
@@ -131,23 +121,17 @@ export default {
   },
   data() {
     return {
-      currentFilters: { ...this.filters, categoryIds: this.filters.categoryIds ? this.filters.categoryIds : [] },
+      currentFilters: { ...this.filters },
       categoryVisible: Object.entries(this.filters).filter((filter) => filter[1].length).length,
     };
-  },
-  computed: {
-    categories() {
-      return categories;
-    },
   },
   methods: {
     submit() {
       this.$emit('update:filters', { ...this.currentFilters });
     },
     reset() {
-      this.currentFilters = {
-        categoryIds: [],
-      };
+      this.currentFilters = {};
+      this.categoryVisible = false;
       this.$emit('resetPagination');
       this.submit();
     },
