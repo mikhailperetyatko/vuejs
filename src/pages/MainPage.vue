@@ -1,29 +1,30 @@
 <template>
-<main class="content container">
-  <div class="content__top content__top--catalog">
-    <h1 class="content__title">
-      Каталог
-    </h1>
-    <span class="content__info">
-      Количество найденных товаров: {{ productsAmount }} шт.
-    </span>
-  </div>
-  <div class="content__catalog">
-    <ProductFilter
-      @resetPagination="page = 1"
-      :filters.sync="filters"
-      :colors="productColors"
-    />
-    <section class="catalog">
-      <ProductList :products="products" />
-      <BasePagination v-model="page"
-        :current-page="page"
-        :per-page="productsPerPage"
-        :amount="productsAmount"
+  <main class="content container">
+    <div class="content__top content__top--catalog">
+      <h1 class="content__title">
+        Каталог
+      </h1>
+      <span class="content__info">
+        Количество найденных товаров: {{ productsAmount }} шт.
+      </span>
+    </div>
+    <div class="content__catalog">
+      <ProductFilter
+        :colors="productColors"
+        :filters.sync="filters"
+        @resetPagination="page = 1"
       />
-    </section>
-  </div>
-</main>
+      <section class="catalog">
+        <ProductList :products="products" />
+        <BasePagination
+          v-model="page"
+          :current-page="page"
+          :per-page="productsPerPage"
+          :amount="productsAmount"
+        />
+      </section>
+    </div>
+  </main>
 </template>
 
 <script>
@@ -33,27 +34,22 @@ import BasePagination from '@/components/BasePagination.vue';
 import ProductFilter from '@/components/ProductFilter.vue';
 
 export default {
+  components: {
+    ProductList,
+    BasePagination,
+    ProductFilter,
+  },
   props: {
     pageParams: {
       type: Object,
-      default: () => ({
-        priceFrom: 100,
-        priceTo: 100000,
-        categoryIds: [],
-        colors: [],
-      }),
+      default: () => {},
     },
   },
   data() {
     return {
       page: 1,
       productsPerPage: 6,
-      filters: {
-        priceFrom: this.pageParams.priceFrom ?? 0,
-        priceTo: this.pageParams.priceTo ?? 0,
-        categoryIds: this.pageParams.categoryIds ?? [],
-        colors: this.pageParams.colors ?? [],
-      },
+      filters: this.pageParams,
     };
   },
   computed: {
@@ -62,9 +58,13 @@ export default {
         (item) => (
           (!this.filters.priceFrom || item.price >= this.filters.priceFrom)
           && (!this.filters.priceTo || item.price <= this.filters.priceTo)
-          && (!this.filters.categoryIds.length || this.filters.categoryIds.indexOf(item.categoryId) > -1)
           && (
-            !this.filters.colors.length
+            !this.filters.categoryIds
+            || !this.filters.categoryIds.length
+            || this.filters.categoryIds.indexOf(item.categoryId) > -1)
+          && (
+            !this.filters.colors
+            || !this.filters.colors.length
             || item.colors.filter((itemColor) => this.filters.colors.indexOf(itemColor) > -1).length
           )
         ),
@@ -80,11 +80,6 @@ export default {
     productColors() {
       return [...(new Set(products.reduce((accumulator, product) => [...accumulator, ...product.colors], [])))];
     },
-  },
-  components: {
-    ProductList,
-    BasePagination,
-    ProductFilter,
   },
 };
 </script>

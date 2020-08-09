@@ -1,18 +1,25 @@
 <template>
-<li class="catalog__item">
-  <a class="catalog__pic" href="#" @click.prevent="gotoPage('productPage', {id: product.id})">
-    <img :src="product.img" :alt="product.name">
-  </a>
-  <h3 class="catalog__title">
-    <a href="#">
-      {{ product.name }}
+  <li class="catalog__item">
+    <a
+      class="catalog__pic"
+      href="#"
+      @click.prevent="gotoPage('productPage', {id: product.id})"
+    >
+      <img
+        :src="product.img"
+        :alt="product.name"
+      >
     </a>
-  </h3>
-  <span class="catalog__price">
-    {{ product.price | numberFormat }} ₽
-  </span>
-  <ProductColors :colors="product.colors" />
-</li>
+    <h3 class="catalog__title">
+      <a href="#">
+        {{ product.name }}
+      </a>
+    </h3>
+    <span class="catalog__price">
+      {{ product.price | numberFormat }} ₽
+    </span>
+    <ProductColors :colors="product.colors" />
+  </li>
 </template>
 <script>
 import gotoPage from '@/helpers/gotoPage';
@@ -21,23 +28,26 @@ import ProductColors from '@/components/ProductColors.vue';
 
 export default {
   name: 'ProductItem',
-  props: [
-    'product',
-  ],
+  components: {
+    ProductColors,
+  },
+  filters: {
+    numberFormat,
+  },
+  props: {
+    product: {
+      type: Object,
+      default: () => {},
+    },
+  },
   data() {
     return {
       currentColor: this.product.colors[0],
     };
   },
-  filters: {
-    numberFormat,
-  },
   methods: {
     gotoPage,
     numberFormat,
-  },
-  components: {
-    ProductColors,
   },
 };
 </script>

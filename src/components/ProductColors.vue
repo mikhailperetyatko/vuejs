@@ -1,13 +1,22 @@
 <template>
   <ul class="colors">
-    <li class="colors__item" v-for="color in colors" :key="color">
+    <li
+      v-for="color in colors"
+      :key="color"
+      class="colors__item"
+    >
       <label class="colors__label">
-        <input class="colors__radio sr-only" v-model="currentColor"
+        <input
+          v-model="currentColor"
+          class="colors__radio sr-only"
           :type="inputType"
           :value="color"
           @change="colorChange"
         >
-        <span class="colors__value" :style="'background-color: ' + color"></span>
+        <span
+          class="colors__value"
+          :style="`background-color: ${color}`"
+        />
       </label>
     </li>
   </ul>
@@ -16,33 +25,40 @@
 export default {
   name: 'ProductColors',
   props: {
-    colors: {},
-    inputType: {
-      default: 'radio',
+    colors: {
+      type: Array,
+      default: () => [],
     },
-    colorChecked: {},
+    inputType: {
+      type: String,
+      default: () => 'radio',
+    },
+    colorChecked: {
+      type: Array,
+      default: () => [],
+    },
   },
   data() {
     return {
       currentColor: '',
     };
   },
-  mounted() {
-    this.currentColor = this.emptyValue;
-  },
   computed: {
     emptyValue() {
       return this.inputType === 'checkbox' ? [] : '';
     },
   },
+  watch: {
+    colorChecked() {
+      if (!this.colorChecked) this.currentColor = this.emptyValue;
+    },
+  },
+  mounted() {
+    this.currentColor = this.emptyValue;
+  },
   methods: {
     colorChange() {
       this.$emit('update:colorChecked', this.currentColor);
-    },
-  },
-  watch: {
-    colorChecked() {
-      if (!this.colorChecked.length) this.currentColor = this.emptyValue;
     },
   },
 };

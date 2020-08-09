@@ -1,5 +1,8 @@
 <template>
-  <component :is="currentPageComponent" :pageParams="currentPageParams"/>
+  <component
+    :is="currentPageComponent"
+    :page-params="currentPageParams"
+  />
 </template>
 
 <script>
@@ -15,30 +18,30 @@ const routes = {
 
 export default {
   name: 'App',
+  components: {
+    MainPage,
+    ProductPage,
+    NotFoundPage,
+  },
   data() {
     return {
       currentPage: 'main',
       currentPageParams: {},
     };
   },
-  created() {
-    eventBus.$on('gotoPage', (pageName, pageParams) => this.gotoPage(pageName, pageParams));
-  },
   computed: {
     currentPageComponent() {
       return routes[this.currentPage] || 'NotFoundPage';
     },
+  },
+  created() {
+    eventBus.$on('gotoPage', (pageName, pageParams) => this.gotoPage(pageName, pageParams));
   },
   methods: {
     gotoPage(pageName, pageparams) {
       this.currentPage = pageName;
       this.currentPageParams = pageparams;
     },
-  },
-  components: {
-    MainPage,
-    ProductPage,
-    NotFoundPage,
   },
 };
 </script>
