@@ -50,7 +50,7 @@ export default {
   },
   watch: {
     colorChecked() {
-      if (!this.colorChecked) this.currentColor = this.emptyValue;
+      if (!this.colorChecked.length) this.currentColor = this.emptyValue;
     },
   },
   mounted() {

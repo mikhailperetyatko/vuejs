@@ -67,7 +67,7 @@
               :key="category.id"
             >
               <input
-                v-model="checkedCategories"
+                v-model="currentFilters.categoryIds"
                 type="checkbox"
                 :value="category.id"
                 :name="`category${category.id}`"
@@ -122,18 +122,17 @@ export default {
   props: {
     colors: {
       type: Array,
-      default: () => ([]),
+      default: () => [],
     },
     filters: {
       type: Object,
-      default: () => ({}),
+      default: () => {},
     },
   },
   data() {
     return {
-      currentFilters: { ...this.filters },
+      currentFilters: { ...this.filters, categoryIds: this.filters.categoryIds ? this.filters.categoryIds : [] },
       categoryVisible: Object.entries(this.filters).filter((filter) => filter[1].length).length,
-      checkedCategories: this.filters.categoryIds ?? [],
     };
   },
   computed: {
@@ -141,18 +140,14 @@ export default {
       return categories;
     },
   },
-  watch: {
-    checkedCategories() {
-      this.currentFilters.categoryIds = this.checkedCategories;
-    },
-  },
   methods: {
     submit() {
       this.$emit('update:filters', { ...this.currentFilters });
     },
     reset() {
-      this.currentFilters = {};
-      this.checkedCategories = [];
+      this.currentFilters = {
+        categoryIds: [],
+      };
       this.$emit('resetPagination');
       this.submit();
     },
