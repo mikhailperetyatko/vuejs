@@ -6,22 +6,20 @@
     <div class="content__top">
       <ul class="breadcrumbs">
         <li class="breadcrumbs__item">
-          <a
+          <router-link
             class="breadcrumbs__link"
-            href="#"
-            @click.prevent="gotoPage('main')"
+            :to="{ name: 'main' }"
           >
             Каталог
-          </a>
+          </router-link>
         </li>
         <li class="breadcrumbs__item">
-          <a
+          <router-link
             class="breadcrumbs__link"
-            href="#"
-            @click.prevent="gotoPage('main', {categoryIds: [category.id]})"
+            :to="{ name: 'main', params: {filters: {categoryIds: [category.id]}} }"
           >
             {{ category.title }}
-          </a>
+          </router-link>
         </li>
         <li class="breadcrumbs__item">
           <a class="breadcrumbs__link">
@@ -131,15 +129,9 @@ export default {
   filters: {
     numberFormat,
   },
-  props: {
-    pageParams: {
-      type: Object,
-      default: () => {},
-    },
-  },
   computed: {
     product() {
-      return products.find((product) => product.id === this.pageParams.id) ?? gotoPage('NotFoundPage');
+      return products.find((product) => product.id === +this.$route.params.id);
     },
     category() {
       return categories.find((category) => category.id === this.product.categoryId);

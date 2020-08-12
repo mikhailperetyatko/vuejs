@@ -39,17 +39,11 @@ export default {
     BasePagination,
     ProductFilter,
   },
-  props: {
-    pageParams: {
-      type: Object,
-      default: () => {},
-    },
-  },
   data() {
     return {
       page: 1,
       productsPerPage: 6,
-      filters: this.pageParams,
+      filters: this.$route.params.filters ?? {},
     };
   },
   computed: {
