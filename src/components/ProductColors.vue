@@ -11,7 +11,7 @@
           class="colors__radio sr-only"
           :type="inputType"
           :value="color"
-          @change="colorChange"
+          @change.prevent="colorChange"
         >
         <span
           class="colors__value"
@@ -33,9 +33,13 @@ export default {
       type: String,
       default: () => 'radio',
     },
-    colorChecked: {
+    colorsChecked: {
       type: Array,
       default: () => [],
+    },
+    colorChecked: {
+      type: String,
+      default: () => '',
     },
   },
   data() {
@@ -50,7 +54,10 @@ export default {
   },
   watch: {
     colorChecked() {
-      if (!this.colorChecked.length) this.currentColor = this.emptyValue;
+      if (!this.colorChecked) this.currentColor = '';
+    },
+    colorsChecked() {
+      if (!this.colorsChecked.length) this.currentColor = [];
     },
   },
   mounted() {
@@ -58,7 +65,7 @@ export default {
   },
   methods: {
     colorChange() {
-      this.$emit('update:colorChecked', this.currentColor);
+      this.$emit(`update:${this.inputType === 'checkbox' ? 'colorsChecked' : 'colorChecked'}`, this.currentColor);
     },
   },
 };

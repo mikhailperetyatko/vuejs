@@ -1,111 +1,53 @@
 <template>
-  <main class="content container">
+  <main
+    class="content container"
+  >
+    <link
+      href="https://cdn.jsdelivr.net/npm/animate.css@3.5.1"
+      rel="stylesheet"
+      type="text/css"
+    >
     <div class="content__top">
-      <ul class="breadcrumbs">
-        <li class="breadcrumbs__item">
-          <a
-            class="breadcrumbs__link"
-            href="index.html"
-          >
-            Каталог
-          </a>
-        </li>
-        <li class="breadcrumbs__item">
-          <a class="breadcrumbs__link">
-            Корзина
-          </a>
-        </li>
-      </ul>
-
+      <Breadcrumbs
+        :links="breadcrumbs"
+      />
       <h1 class="content__title">
         Корзина
       </h1>
       <span class="content__info">
-        3 товара
+        Сейчас в корзине {{ $store.state.cartProducts.length | numberFormat | amountFormat }}
       </span>
     </div>
 
-    <section class="cart">
+    <section
+      v-if="itemsAmount"
+      class="cart"
+    >
       <form
         class="cart__form form"
         action="#"
         method="POST"
       >
         <div class="cart__field">
-          <ul class="cart__list">
-            <li class="cart__item product">
-              <div class="product__pic">
-                <img
-                  src="img/phone-square-3.jpg"
-                  width="120"
-                  height="120"
-                  srcset="img/phone-square-3@2x.jpg 2x"
-                  alt="Название товара"
-                >
-              </div>
-              <h3 class="product__title">
-                Смартфон Xiaomi Redmi Note 7 Pro 6/128GB
-              </h3>
-              <p class="product__info">
-                Объем: <span>128GB</span>
-              </p>
-              <span class="product__code">
-                Артикул: 1501230
-              </span>
-
-              <div class="product__counter form__counter">
-                <button
-                  type="button"
-                  aria-label="Убрать один товар"
-                >
-                  <svg
-                    width="10"
-                    height="10"
-                    fill="currentColor"
-                  >
-                    <use xlink:href="#icon-minus" />
-                  </svg>
-                </button>
-
-                <input
-                  type="text"
-                  value="1"
-                  name="count"
-                >
-
-                <button
-                  type="button"
-                  aria-label="Добавить один товар"
-                >
-                  <svg
-                    width="10"
-                    height="10"
-                    fill="currentColor"
-                  >
-                    <use xlink:href="#icon-plus" />
-                  </svg>
-                </button>
-              </div>
-
-              <b class="product__price">
-                18 990 ₽
-              </b>
-
-              <button
-                class="product__del button-del"
-                type="button"
-                aria-label="Удалить товар из корзины"
-              >
-                <svg
-                  width="20"
-                  height="20"
-                  fill="currentColor"
-                >
-                  <use xlink:href="#icon-close" />
-                </svg>
-              </button>
-            </li>
-          </ul>
+          <transition-group
+            tag="ul"
+            name="custom-classes-transition"
+            enter-active-class="animated flipInX"
+            leave-active-class="animated flipOutX"
+          >
+            <CartItem
+              v-for="item in products"
+              :key="`${item.product.id}_${item.color}`"
+              :item="item"
+            />
+          </transition-group>
+          <BasePagination
+            v-if="itemsPerPage < itemsAmount"
+            v-model="page"
+            :current-page="page"
+            :per-page="itemsPerPage"
+            :amount="itemsAmount"
+          />
         </div>
 
         <div class="cart__block">
@@ -113,7 +55,7 @@
             Мы&nbsp;посчитаем стоимость доставки на&nbsp;следующем этапе
           </p>
           <p class="cart__price">
-            Итого: <span>32 970 ₽</span>
+            Итого: <span>{{ totalPrice | numberFormat }} ₽</span>
           </p>
 
           <button
@@ -125,9 +67,64 @@
         </div>
       </form>
     </section>
+    <div v-else>
+      Ваша корзина пуста :(
+    </div>
   </main>
 </template>
+<style>
+
+</style>
 <script>
+import Breadcrumbs from '@/components/Breadcrumbs.vue';
+import BasePagination from '@/components/BasePagination.vue';
+import CartItem from '@/components/CartItem.vue';
+import { mapGetters } from 'vuex';
+import amountFormat from '@/helpers/amountFormat';
+import numberFormat from '@/helpers/numberFormat';
+import paginationsComputedFunction from '@/helpers/paginationsComputedFunction';
+
 export default {
+  components: {
+    Breadcrumbs,
+    CartItem,
+    BasePagination,
+  },
+  filters: {
+    amountFormat,
+    numberFormat,
+  },
+  data() {
+    return {
+      page: 1,
+      itemsPerPage: 3,
+    };
+  },
+  computed: {
+    ...mapGetters({ productsInStore: 'cartDetailProducts', totalPrice: 'totalCartPrice' }),
+    breadcrumbs() {
+      return [
+        {
+          description: 'Каталог',
+          data: { name: 'main' },
+        },
+        {
+          description: 'Корзина',
+          data: {},
+        },
+      ];
+    },
+    products() {
+      return paginationsComputedFunction.products(this.productsInStore, this.page, this.itemsPerPage);
+    },
+    itemsAmount() {
+      return paginationsComputedFunction.itemsAmount(this.productsInStore);
+    },
+  },
+  watch: {
+    products() {
+      if (this.products.length === 0 && this.page > 1) this.page -= 1;
+    },
+  },
 };
 </script>

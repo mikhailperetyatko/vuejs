@@ -8,10 +8,30 @@ import NotFoundPage from '@/pages/NotFoundPage.vue';
 Vue.use(VueRouter);
 
 const routes = [
-  { name: 'main', component: MainPage, path: '/' },
-  { name: 'product', component: ProductPage, path: '/product/:id' },
-  { name: 'cart', component: CartPage, path: '/cart' },
-  { name: 'notFound', component: NotFoundPage, path: '*' },
+  {
+    meta: { title: 'Каталог' },
+    name: 'main',
+    component: MainPage,
+    path: '/',
+  },
+  {
+    meta: { title: 'Страница товара' },
+    name: 'product',
+    component: ProductPage,
+    path: '/product/:id',
+  },
+  {
+    meta: { title: 'Корзина' },
+    name: 'cart',
+    component: CartPage,
+    path: '/cart',
+  },
+  {
+    meta: { title: 'Ошибочный маршрут' },
+    name: 'notFound',
+    component: NotFoundPage,
+    path: '*',
+  },
 ];
 
 const router = new VueRouter({

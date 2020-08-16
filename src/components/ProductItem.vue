@@ -17,7 +17,23 @@
     <span class="catalog__price">
       {{ product.price | numberFormat }} ₽
     </span>
-    <ProductColors :colors="product.colors" />
+    <fieldset class="form__block">
+      <legend class="form__legend">
+        Цвет:
+      </legend>
+      <ProductColors
+        :colors="product.colors"
+        :color-checked.sync="currentColor"
+      />
+    </fieldset>
+    <b v-if="productExistsInCart">
+      Товар в
+      <router-link
+        :to="{ name: 'cart' }"
+      >
+        Козине
+      </router-link>
+    </b>
   </li>
 </template>
 <script>
@@ -41,12 +57,31 @@ export default {
   },
   data() {
     return {
-      currentColor: this.product.colors[0],
+      currentColor: '',
     };
+  },
+  computed: {
+    productExistsInCart() {
+      return this.$store.state.cartProducts.find((item) => item.productId === this.product.id);
+    },
+  },
+  watch: {
+    currentColor() {
+      this.addToCart();
+    },
   },
   methods: {
     gotoPage,
-    numberFormat,
+    addToCart() {
+      this.$store.commit(
+        'addProductToCart',
+        {
+          productId: this.product.id,
+          amount: 1,
+          color: this.currentColor,
+        },
+      );
+    },
   },
 };
 </script>

@@ -17,6 +17,7 @@
       <section class="catalog">
         <ProductList :products="products" />
         <BasePagination
+          v-if="productsAmount > productsPerPage"
           v-model="page"
           :current-page="page"
           :per-page="productsPerPage"
@@ -32,6 +33,7 @@ import products from '@/data/products';
 import ProductList from '@/components/ProductList.vue';
 import BasePagination from '@/components/BasePagination.vue';
 import ProductFilter from '@/components/ProductFilter.vue';
+import paginationsComputedFunction from '@/helpers/paginationsComputedFunction';
 
 export default {
   components: {
@@ -65,11 +67,10 @@ export default {
       );
     },
     products() {
-      const offset = (this.page - 1) * this.productsPerPage;
-      return this.filteredProducts.slice(offset, offset + this.productsPerPage);
+      return paginationsComputedFunction.products(this.filteredProducts, this.page, this.productsPerPage);
     },
     productsAmount() {
-      return this.filteredProducts.length;
+      return paginationsComputedFunction.itemsAmount(this.filteredProducts);
     },
     productColors() {
       return [...(new Set(products.reduce((accumulator, product) => [...accumulator, ...product.colors], [])))];

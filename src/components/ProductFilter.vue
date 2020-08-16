@@ -76,7 +76,7 @@
           Цвет
         </legend>
         <ProductColors
-          :color-checked.sync="currentFilters.colors"
+          :colors-checked.sync="currentFilters.colors"
           :colors="colors"
           :input-type="'checkbox'"
         />

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Header />
+    <Header :title="$route.meta.title" />
     <router-view />
     <Footer />
   </div>

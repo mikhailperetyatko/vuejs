@@ -1,7 +1,7 @@
 <template>
   <header class="header">
     <div class="header__wrapper container">
-      <span class="header__info">Каталог</span>
+      <span class="header__info">{{ title }}</span>
       <a
         class="header__logo"
         href="#"
@@ -29,6 +29,12 @@ import CartIndicator from '@/components/CartIndicator.vue';
 export default {
   components: {
     CartIndicator,
+  },
+  props: {
+    title: {
+      type: String,
+      default: '',
+    },
   },
 };
 </script>

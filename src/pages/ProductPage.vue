@@ -4,29 +4,9 @@
     class="content container"
   >
     <div class="content__top">
-      <ul class="breadcrumbs">
-        <li class="breadcrumbs__item">
-          <router-link
-            class="breadcrumbs__link"
-            :to="{ name: 'main' }"
-          >
-            Каталог
-          </router-link>
-        </li>
-        <li class="breadcrumbs__item">
-          <router-link
-            class="breadcrumbs__link"
-            :to="{ name: 'main', params: {filters: {categoryIds: [category.id]}} }"
-          >
-            {{ category.title }}
-          </router-link>
-        </li>
-        <li class="breadcrumbs__item">
-          <a class="breadcrumbs__link">
-            {{ product.name }}
-          </a>
-        </li>
-      </ul>
+      <Breadcrumbs
+        :links="breadcrumbs"
+      />
     </div>
     <section class="item">
       <div class="item__pics pics">
@@ -52,6 +32,7 @@
             class="form"
             action="#"
             method="POST"
+            @submit.prevent="addToCart()"
           >
             <b class="item__price">
               {{ product.price | numberFormat }} ₽
@@ -61,7 +42,16 @@
               <legend class="form__legend">
                 Цвет:
               </legend>
-              <ProductColors :colors="product.colors" />
+              <ProductColors
+                :colors="product.colors"
+                :color-checked.sync="currentColor"
+              />
+              <b
+                v-if="errors.color"
+                style="color:red"
+              >
+                {{ errors.color }}
+              </b>
             </fieldset>
 
             <div class="item__row">
@@ -69,6 +59,7 @@
                 <button
                   type="button"
                   aria-label="Убрать один товар"
+                  @click.prevent="amount > 1 ? amount-- : 1"
                 >
                   <svg
                     width="12"
@@ -80,14 +71,14 @@
                 </button>
 
                 <input
+                  v-model.number="amount"
                   type="text"
-                  value="1"
-                  name="count"
                 >
 
                 <button
                   type="button"
                   aria-label="Добавить один товар"
+                  @click.prevent="amount++"
                 >
                   <svg
                     width="12"
@@ -98,13 +89,15 @@
                   </svg>
                 </button>
               </div>
-
               <button
                 class="button button--primery"
                 type="submit"
               >
                 В корзину
               </button>
+              <b v-if="addToCartSuccess">
+                Товар успешно доавлен в корзину!
+              </b>
             </div>
           </form>
         </div>
@@ -121,13 +114,23 @@ import categories from '@/data/categories';
 import gotoPage from '@/helpers/gotoPage';
 import numberFormat from '@/helpers/numberFormat';
 import ProductColors from '@/components/ProductColors.vue';
+import Breadcrumbs from '@/components/Breadcrumbs.vue';
 
 export default {
   components: {
     ProductColors,
+    Breadcrumbs,
   },
   filters: {
     numberFormat,
+  },
+  data() {
+    return {
+      amount: 1,
+      currentColor: '',
+      errors: {},
+      addToCartSuccess: false,
+    };
   },
   computed: {
     product() {
@@ -136,10 +139,55 @@ export default {
     category() {
       return categories.find((category) => category.id === this.product.categoryId);
     },
+    breadcrumbs() {
+      return [
+        {
+          description: 'Каталог',
+          data: { name: 'main' },
+        },
+        {
+          description: this.category.title,
+          data: { name: 'main', params: { filters: { categoryIds: [this.category.id] } } },
+        },
+        {
+          description: this.product.name,
+          data: {},
+        },
+      ];
+    },
+  },
+  watch: {
+    currentColor() {
+      this.errors.color = '';
+      this.addToCartSuccess = false;
+    },
   },
   methods: {
     gotoPage,
     numberFormat,
+    checkForm() {
+      this.errors = {};
+      if (this.currentColor) {
+        return true;
+      }
+      if (!this.currentColor) {
+        this.errors.color = 'Требуется выбрать цвет товара.';
+      }
+      return false;
+    },
+    addToCart() {
+      if (this.checkForm()) {
+        this.$store.commit(
+          'addProductToCart',
+          {
+            productId: this.product.id,
+            amount: this.amount,
+            color: this.currentColor,
+          },
+        );
+        this.addToCartSuccess = true;
+      }
+    },
   },
 };
 </script>
