@@ -21,41 +21,10 @@
     <span class="product__code">
       {{ item.product.id }}
     </span>
-    <div class="product__counter form__counter">
-      <button
-        type="button"
-        aria-label="Убрать один товар"
-        :class="{ 'pagination__link--disabled': amount == 1 }"
-        @click.prevent="amount > 1 ? amount-- : 1"
-      >
-        <svg
-          width="10"
-          height="10"
-          fill="currentColor"
-        >
-          <use xlink:href="#icon-minus" />
-        </svg>
-      </button>
-      <input
-        v-model.number="amount"
-        type="text"
-      >
-      <button
-        type="button"
-        aria-label="Добавить один товар"
-        @click.prevent="amount++"
-      >
-        <svg
-          width="10"
-          height="10"
-          fill="currentColor"
-        >
-          <use xlink:href="#icon-plus" />
-        </svg>
-      </button>
-    </div>
-    <ErrorMessage
-      :messages="errors.amount"
+    <ProductAmount
+      :amount.sync="amount"
+      :valid.sync="validate.amount"
+      class="product__counter form__counter"
     />
     <b class="product__price">
       {{ item.product.price | numberFormat }} ₽
@@ -83,12 +52,11 @@
 import numberFormat from '@/helpers/numberFormat';
 import colors from '@/data/colors';
 import { mapMutations } from 'vuex';
-import ErrorMessage from '@/components/ErrorMessage.vue';
-import validate from '@/helpers/validate';
+import ProductAmount from '@/components/ProductAmount.vue';
 
 export default {
   components: {
-    ErrorMessage,
+    ProductAmount,
   },
   filters: {
     numberFormat,
@@ -102,6 +70,7 @@ export default {
   data() {
     return {
       errors: {},
+      validate: {},
     };
   },
   computed: {
@@ -113,8 +82,8 @@ export default {
         return this.item.amount;
       },
       set(value) {
-        this.item.amount = +value;
-        if (this.checkForm()) {
+        this.item.amount = value;
+        if (this.validate.amount) {
           this.$store.commit(
             'updateCartProduct',
             {
@@ -129,11 +98,6 @@ export default {
   },
   methods: {
     ...mapMutations({ deleteProduct: 'deleteCartProduct' }),
-    checkForm() {
-      this.errors = {};
-      this.errors.amount = validate(this.item.amount, 'integer|min:1');
-      return !this.errors.amount.length;
-    },
   },
 };
 </script>

@@ -1,19 +1,17 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import products from '@/data/products';
+import getProduct from '@/helpers/getProduct';
 
 Vue.use(Vuex);
 
-const Store = new Vuex.Store({
+export default new Vuex.Store({
   state: {
     cartProducts: [],
   },
   getters: {
     product: (state) => ({ productId, color }) => (
-      state.cartProducts.find((item) => (
-        item.productId === productId
-        && (!item.color || item.color === color)
-      ))
+      getProduct(state, { productId, color })
     ),
     cartDetailProducts(state) {
       return state.cartProducts.map((item) => (
@@ -29,12 +27,12 @@ const Store = new Vuex.Store({
   },
   mutations: {
     addProductToCart(state, { productId, color, amount }) {
-      const product = Store.getters.product({ productId, color });
+      const product = getProduct(state, { productId, color });
       if (product) product.amount += +amount;
       else state.cartProducts.push({ productId, amount, color });
     },
     updateCartProduct(state, { productId, color, amount }) {
-      const product = Store.getters.product({ productId, color });
+      const product = getProduct(state, { productId, color });
       if (product) product.amount = amount;
     },
     deleteCartProduct(state, { productId, color }) {
@@ -45,5 +43,3 @@ const Store = new Vuex.Store({
     },
   },
 });
-
-export default Store;

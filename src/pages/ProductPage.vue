@@ -45,59 +45,29 @@
               <ProductColors
                 :colors="product.colors"
                 :color-checked.sync="currentColor"
-              />
-              <ErrorMessage
-                :messages="errors.color"
+                :valid.sync="validate.color"
+                :validated-info-hidden="validatedInfoHidden"
               />
             </fieldset>
 
             <div class="item__row">
-              <div class="form__counter">
-                <button
-                  type="button"
-                  aria-label="Убрать один товар"
-                  @click.prevent="amount > 1 ? amount-- : 1"
-                >
-                  <svg
-                    width="12"
-                    height="12"
-                    fill="currentColor"
-                  >
-                    <use xlink:href="#icon-minus" />
-                  </svg>
-                </button>
-
-                <input
-                  v-model.number="amount"
-                  type="text"
-                >
-                <button
-                  type="button"
-                  aria-label="Добавить один товар"
-                  @click.prevent="amount++"
-                >
-                  <svg
-                    width="12"
-                    height="12"
-                    fill="currentColor"
-                  >
-                    <use xlink:href="#icon-plus" />
-                  </svg>
-                </button>
-              </div>
-              <button
-                class="button button--primery"
-                type="submit"
-              >
-                В корзину
-              </button>
-              <ErrorMessage
-                :messages="errors.amount"
+              <ProductAmount
+                :amount.sync="amount"
+                :valid.sync="validate.amount"
+                :validated-info-hidden="validatedInfoHidden"
+                class="form__counter"
               />
-              <b v-if="addToCartSuccess">
-                Товар успешно доавлен в корзину!
-              </b>
             </div>
+            <button
+              class="button button--primery"
+              type="submit"
+              style="margin-top:20px;width:100%"
+            >
+              В корзину
+            </button>
+            <b v-if="addToCartSuccess">
+              Товар успешно доавлен в корзину!
+            </b>
           </form>
         </div>
       </div>
@@ -110,17 +80,16 @@
 <script>
 import products from '@/data/products';
 import categories from '@/data/categories';
-import validate from '@/helpers/validate';
 import numberFormat from '@/helpers/numberFormat';
 import ProductColors from '@/components/ProductColors.vue';
 import Breadcrumbs from '@/components/Breadcrumbs.vue';
-import ErrorMessage from '@/components/ErrorMessage.vue';
+import ProductAmount from '@/components/ProductAmount.vue';
 
 export default {
   components: {
     ProductColors,
     Breadcrumbs,
-    ErrorMessage,
+    ProductAmount,
   },
   filters: {
     numberFormat,
@@ -129,8 +98,9 @@ export default {
     return {
       amount: 1,
       currentColor: '',
-      errors: {},
+      validate: {},
       addToCartSuccess: false,
+      validatedInfoHidden: true,
     };
   },
   computed: {
@@ -158,17 +128,10 @@ export default {
     },
   },
   methods: {
-    validate,
     numberFormat,
-    checkForm() {
-      this.errors = {};
-      this.errors.color = validate(this.currentColor, 'required|string');
-      this.errors.amount = validate(this.amount, 'integer|min:1|max:10');
-      return !this.errors.color.length && !this.errors.amount.length;
-    },
     addToCart() {
-      this.addToCartSuccess = false;
-      if (this.checkForm()) {
+      this.validatedInfoHidden = false;
+      if (Object.values(this.validate).indexOf(false) === -1) {
         this.$store.commit(
           'addProductToCart',
           {
