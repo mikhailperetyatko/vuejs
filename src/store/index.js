@@ -4,17 +4,17 @@ import products from '@/data/products';
 
 Vue.use(Vuex);
 
-export default new Vuex.Store({
+const Store = new Vuex.Store({
   state: {
     cartProducts: [],
-    getProduct(state, { productId, color }) {
-      return state.cartProducts.find((item) => (
-        item.productId === productId
-        && (!item.color || item.color === color)
-      ));
-    },
   },
   getters: {
+    product: (state) => ({ productId, color }) => (
+      state.cartProducts.find((item) => (
+        item.productId === productId
+        && (!item.color || item.color === color)
+      ))
+    ),
     cartDetailProducts(state) {
       return state.cartProducts.map((item) => (
         {
@@ -29,12 +29,12 @@ export default new Vuex.Store({
   },
   mutations: {
     addProductToCart(state, { productId, color, amount }) {
-      const product = state.getProduct(state, { productId, color });
+      const product = Store.getters.product({ productId, color });
       if (product) product.amount += +amount;
       else state.cartProducts.push({ productId, amount, color });
     },
     updateCartProduct(state, { productId, color, amount }) {
-      const product = state.getProduct(state, { productId, color });
+      const product = Store.getters.product({ productId, color });
       if (product) product.amount = amount;
     },
     deleteCartProduct(state, { productId, color }) {
@@ -45,3 +45,5 @@ export default new Vuex.Store({
     },
   },
 });
+
+export default Store;

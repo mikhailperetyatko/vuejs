@@ -54,6 +54,9 @@
         </svg>
       </button>
     </div>
+    <ErrorMessage
+      :messages="errors.amount"
+    />
     <b class="product__price">
       {{ item.product.price | numberFormat }} ₽
     </b>
@@ -80,8 +83,13 @@
 import numberFormat from '@/helpers/numberFormat';
 import colors from '@/data/colors';
 import { mapMutations } from 'vuex';
+import ErrorMessage from '@/components/ErrorMessage.vue';
+import validate from '@/helpers/validate';
 
 export default {
+  components: {
+    ErrorMessage,
+  },
   filters: {
     numberFormat,
   },
@@ -90,6 +98,11 @@ export default {
       type: Object,
       default: () => {},
     },
+  },
+  data() {
+    return {
+      errors: {},
+    };
   },
   computed: {
     currentColor() {
@@ -100,19 +113,27 @@ export default {
         return this.item.amount;
       },
       set(value) {
-        this.$store.commit(
-          'updateCartProduct',
-          {
-            productId: this.item.product.id,
-            color: this.item.color,
-            amount: value,
-          },
-        );
+        this.item.amount = +value;
+        if (this.checkForm()) {
+          this.$store.commit(
+            'updateCartProduct',
+            {
+              productId: this.item.product.id,
+              color: this.item.color,
+              amount: value,
+            },
+          );
+        }
       },
     },
   },
   methods: {
     ...mapMutations({ deleteProduct: 'deleteCartProduct' }),
+    checkForm() {
+      this.errors = {};
+      this.errors.amount = validate(this.item.amount, 'integer|min:1');
+      return !this.errors.amount.length;
+    },
   },
 };
 </script>

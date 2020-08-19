@@ -3,12 +3,12 @@
     <div class="footer__wrapper container">
       <ul class="footer__links">
         <li>
-          <a
+          <router-link
             class="footer__link"
-            href="#"
+            :to="{ name: 'main' }"
           >
             Каталог
-          </a>
+          </router-link>
         </li>
         <li>
           <a
@@ -27,29 +27,29 @@
           </a>
         </li>
         <li>
-          <a
+          <router-link
             class="footer__link"
-            href="#"
+            :to="{ name: 'main' }"
           >
             Распродажа
-          </a>
+          </router-link>
         </li>
         <li>
-          <a
-            class="footer__link footer__link--medium"
-            href="#"
+          <router-link
+            class="footer__link"
+            :to="{ name: 'main' }"
           >
             Заказать звонок
-          </a>
+          </router-link>
         </li>
       </ul>
 
       <ul class="footer__social social">
         <li class="social__item">
-          <a
+          <router-link
             class="social__link"
-            href="#"
             aria-label="Вконтакте"
+            :to="{ name: 'main' }"
           >
             <svg
               width="20"
@@ -58,13 +58,13 @@
             >
               <use xlink:href="#icon-vk" />
             </svg>
-          </a>
+          </router-link>
         </li>
         <li class="social__item">
-          <a
+          <router-link
             class="social__link"
-            href="#"
             aria-label="Инстаграм"
+            :to="{ name: 'main' }"
           >
             <svg
               width="17"
@@ -73,13 +73,13 @@
             >
               <use xlink:href="#icon-insta" />
             </svg>
-          </a>
+          </router-link>
         </li>
         <li class="social__item">
-          <a
+          <router-link
             class="social__link"
-            href="#"
             aria-label="Facebook"
+            :to="{ name: 'main' }"
           >
             <svg
               width="17"
@@ -88,13 +88,13 @@
             >
               <use xlink:href="#icon-facebook" />
             </svg>
-          </a>
+          </router-link>
         </li>
         <li class="social__item">
-          <a
+          <router-link
             class="social__link"
-            href="#"
             aria-label="Twitter"
+            :to="{ name: 'main' }"
           >
             <svg
               width="17"
@@ -103,13 +103,13 @@
             >
               <use xlink:href="#icon-twitter" />
             </svg>
-          </a>
+          </router-link>
         </li>
         <li class="social__item">
-          <a
+          <router-link
             class="social__link"
-            href="#"
             aria-label="Telegram"
+            :to="{ name: 'main' }"
           >
             <svg
               width="19"
@@ -118,7 +118,7 @@
             >
               <use xlink:href="#icon-telegram" />
             </svg>
-          </a>
+          </router-link>
         </li>
       </ul>
 

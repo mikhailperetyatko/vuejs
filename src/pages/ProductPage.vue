@@ -46,12 +46,9 @@
                 :colors="product.colors"
                 :color-checked.sync="currentColor"
               />
-              <b
-                v-if="errors.color"
-                style="color:red"
-              >
-                {{ errors.color }}
-              </b>
+              <ErrorMessage
+                :messages="errors.color"
+              />
             </fieldset>
 
             <div class="item__row">
@@ -74,7 +71,6 @@
                   v-model.number="amount"
                   type="text"
                 >
-
                 <button
                   type="button"
                   aria-label="Добавить один товар"
@@ -95,6 +91,9 @@
               >
                 В корзину
               </button>
+              <ErrorMessage
+                :messages="errors.amount"
+              />
               <b v-if="addToCartSuccess">
                 Товар успешно доавлен в корзину!
               </b>
@@ -111,15 +110,17 @@
 <script>
 import products from '@/data/products';
 import categories from '@/data/categories';
-import gotoPage from '@/helpers/gotoPage';
+import validate from '@/helpers/validate';
 import numberFormat from '@/helpers/numberFormat';
 import ProductColors from '@/components/ProductColors.vue';
 import Breadcrumbs from '@/components/Breadcrumbs.vue';
+import ErrorMessage from '@/components/ErrorMessage.vue';
 
 export default {
   components: {
     ProductColors,
     Breadcrumbs,
+    ErrorMessage,
   },
   filters: {
     numberFormat,
@@ -156,26 +157,17 @@ export default {
       ];
     },
   },
-  watch: {
-    currentColor() {
-      this.errors.color = '';
-      this.addToCartSuccess = false;
-    },
-  },
   methods: {
-    gotoPage,
+    validate,
     numberFormat,
     checkForm() {
       this.errors = {};
-      if (this.currentColor) {
-        return true;
-      }
-      if (!this.currentColor) {
-        this.errors.color = 'Требуется выбрать цвет товара.';
-      }
-      return false;
+      this.errors.color = validate(this.currentColor, 'required|string');
+      this.errors.amount = validate(this.amount, 'integer|min:1|max:10');
+      return !this.errors.color.length && !this.errors.amount.length;
     },
     addToCart() {
+      this.addToCartSuccess = false;
       if (this.checkForm()) {
         this.$store.commit(
           'addProductToCart',
