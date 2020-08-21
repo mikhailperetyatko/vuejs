@@ -2,12 +2,13 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import products from '@/data/products';
 import getProduct from '@/helpers/getProduct';
+import localStoragePlugin from '@/store/plugins/localStoragePlugin';
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    cartProducts: [],
+    cartProducts: JSON.parse(localStorage.getItem('cartProducts') ?? '[]'),
   },
   getters: {
     product: (state) => ({ productId, color }) => (
@@ -42,4 +43,7 @@ export default new Vuex.Store({
       ));
     },
   },
+  plugins: [
+    localStoragePlugin,
+  ],
 });

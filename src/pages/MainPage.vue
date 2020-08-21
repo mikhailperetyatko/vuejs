@@ -34,7 +34,6 @@ import ProductList from '@/components/ProductList.vue';
 import BasePagination from '@/components/BasePagination.vue';
 import ProductFilter from '@/components/ProductFilter.vue';
 import paginationsComputedFunction from '@/helpers/paginationsComputedFunction';
-import validate from '@/helpers/validate';
 
 export default {
   components: {

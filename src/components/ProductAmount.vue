@@ -61,7 +61,7 @@ export default {
   },
   data() {
     return {
-      currentAmount: 1,
+      currentAmount: this.amount ?? 1,
       currentValid: false,
       errors: [],
     };
@@ -82,7 +82,7 @@ export default {
   },
   methods: {
     getValidate() {
-      this.errors = validate(this.currentAmount, 'integer|required|min:0');
+      this.errors = validate(this.currentAmount, 'integer|required|min:1');
       this.currentValid = !this.errors.length;
     },
   },

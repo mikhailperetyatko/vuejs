@@ -37,9 +37,9 @@
   </li>
 </template>
 <script>
-import gotoPage from '@/helpers/gotoPage';
 import numberFormat from '@/helpers/numberFormat';
 import ProductColors from '@/components/ProductColors.vue';
+import { mapGetters } from 'vuex';
 
 export default {
   name: 'ProductItem',
@@ -61,8 +61,9 @@ export default {
     };
   },
   computed: {
+    ...mapGetters({ getProduct: 'product' }),
     productExistsInCart() {
-      return this.$store.state.cartProducts.find((item) => item.productId === this.product.id);
+      return this.getProduct({ productId: this.product.id }) !== undefined;
     },
   },
   watch: {
@@ -71,7 +72,6 @@ export default {
     },
   },
   methods: {
-    gotoPage,
     addToCart() {
       this.$store.commit(
         'addProductToCart',

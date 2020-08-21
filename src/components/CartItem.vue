@@ -27,7 +27,7 @@
       class="product__counter form__counter"
     />
     <b class="product__price">
-      {{ item.product.price | numberFormat }} ₽
+      <span>{{ item.product.price | numberFormat }} ₽</span>
     </b>
     <button
       class="product__del button-del"
