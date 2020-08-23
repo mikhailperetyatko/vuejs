@@ -10,12 +10,16 @@
     </div>
     <div class="content__catalog">
       <ProductFilter
-        :colors="productColors"
         :filters.sync="filters"
         @resetPagination="page = 1"
       />
       <section class="catalog">
-        <ProductList :products="products" />
+        <ProductList
+          :products="products"
+          :loading="loadingProducts"
+          :loading-errors="loadingProductsErrors"
+          @reloadProductList="loadProducts()"
+        />
         <BasePagination
           v-if="productsAmount > productsPerPage"
           v-model="page"
@@ -29,11 +33,11 @@
 </template>
 
 <script>
-import products from '@/data/products';
 import ProductList from '@/components/ProductList.vue';
 import BasePagination from '@/components/BasePagination.vue';
 import ProductFilter from '@/components/ProductFilter.vue';
-import paginationsComputedFunction from '@/helpers/paginationsComputedFunction';
+import axios from 'axios';
+import config from '@/config.js';
 
 export default {
   components: {
@@ -45,35 +49,63 @@ export default {
     return {
       page: 1,
       productsPerPage: 6,
+      productsData: null,
       filters: this.$route.params.filters ?? {},
+      loadingProducts: false,
+      loadingProductsErrors: false,
     };
   },
   computed: {
-    filteredProducts() {
-      return products.filter(
-        (item) => (
-          (!this.filters.priceFrom || item.price >= this.filters.priceFrom)
-          && (!this.filters.priceTo || item.price <= this.filters.priceTo)
-          && (
-            !this.filters.categoryIds
-            || !this.filters.categoryIds.length
-            || this.filters.categoryIds.indexOf(item.categoryId) > -1)
-          && (
-            !this.filters.colors
-            || !this.filters.colors.length
-            || item.colors.filter((itemColor) => this.filters.colors.indexOf(itemColor) > -1).length
-          )
-        ),
-      );
-    },
     products() {
-      return paginationsComputedFunction.products(this.filteredProducts, this.page, this.productsPerPage);
+      return this.productsData
+        ? this.productsData.items
+        : [];
     },
     productsAmount() {
-      return paginationsComputedFunction.itemsAmount(this.filteredProducts);
+      return this.productsData
+        ? this.productsData.pagination.total
+        : 0;
     },
-    productColors() {
-      return [...(new Set(products.reduce((accumulator, product) => [...accumulator, ...product.colors], [])))];
+  },
+  watch: {
+    page() {
+      this.loadProducts();
+    },
+    filters() {
+      this.loadProducts();
+    },
+  },
+  created() {
+    this.loadProducts();
+  },
+  methods: {
+    loadProducts() {
+      this.loadingProducts = true;
+      this.loadingProductsErrors = false;
+      setTimeout(() => {
+        axios.get(`${config.BASE_API_URL}/api/products`, {
+          params: {
+            page: this.page,
+            limit: this.productsPerPage,
+            ...this.filters,
+          },
+        })
+          .then((response) => {
+            this.productsData = {
+              items: response.data.items.map((item) => ({
+                ...item,
+                img: item.image.file.url,
+              })),
+              pagination: response.data.pagination,
+            };
+          })
+          .catch(() => {
+            this.loadingProductsErrors = true;
+          })
+          .then(() => {
+            this.loadingProducts = false;
+          });
+      }, 5000);
     },
   },
 };

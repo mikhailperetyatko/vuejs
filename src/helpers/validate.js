@@ -1,6 +1,9 @@
 export default (value, pattern) => (
   pattern.split('|').reduce((errors, rule) => {
-    if (rule === 'required' && !value) {
+    if (rule === 'required' && (
+      (typeof value === 'object' && !Object.keys(value).length)
+      || !value
+    )) {
       errors.push('обязательное поле');
     }
     if (rule === 'string' && typeof value !== 'string') {

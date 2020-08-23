@@ -20,7 +20,7 @@
         </legend>
         <label class="form__label form__label--price">
           <input
-            v-model.number="currentFilters.priceFrom"
+            v-model.number="currentFilters.minPrice"
             class="form__input"
             type="text"
             name="min-price"
@@ -31,7 +31,7 @@
         </label>
         <label class="form__label form__label--price">
           <input
-            v-model.number="currentFilters.priceTo"
+            v-model.number="currentFilters.maxPrice"
             class="form__input"
             type="text"
             name="max-price"
@@ -62,7 +62,9 @@
             v-if="categoryVisible"
             class="form__label form__label--input"
           >
-            <ProductCategories :categories-checked.sync="currentFilters.categoryIds" />
+            <ProductCategories
+              :category-checked.sync="currentFilters.categoryId"
+            />
           </label>
         </transition>
       </fieldset>
@@ -75,10 +77,21 @@
         >
           Цвет
         </legend>
+        <SpinnerDots
+          v-if="loadingColors"
+        />
+        <div
+          v-if="loadingColorsErrors"
+        >
+          <button
+            @click="loadColors()"
+          >
+            Еще раз
+          </button>
+        </div>
         <ProductColors
-          :colors-checked.sync="currentFilters.colors"
+          :color-checked.sync="currentFilters.colorId"
           :colors="colors"
-          :input-type="'checkbox'"
         />
       </fieldset>
 
@@ -101,19 +114,19 @@
 
 <script>
 import ProductColors from '@/components/ProductColors.vue';
+import SpinnerDots from '@/components/SpinnerDots.vue';
 import ProductCategories from '@/components/ProductCategories.vue';
+import axios from 'axios';
+import config from '@/config';
 
 export default {
   name: 'ProductFilter',
   components: {
     ProductColors,
     ProductCategories,
+    SpinnerDots,
   },
   props: {
-    colors: {
-      type: Array,
-      default: () => [],
-    },
     filters: {
       type: Object,
       default: () => {},
@@ -123,17 +136,48 @@ export default {
     return {
       currentFilters: { ...this.filters },
       categoryVisible: Object.entries(this.filters).filter((filter) => filter[1].length).length,
+      colorsData: null,
+      loadingColors: false,
+      loadingColorsErrors: false,
     };
+  },
+  computed: {
+    colors() {
+      return this.colorsData
+        ? this.colorsData.items
+        : [];
+    },
+  },
+  created() {
+    this.loadColors();
   },
   methods: {
     submit() {
-      this.$emit('update:filters', { ...this.currentFilters });
+      this.$emit('update:filters', {
+        ...this.currentFilters,
+      });
     },
     reset() {
       this.currentFilters = {};
       this.categoryVisible = false;
       this.$emit('resetPagination');
       this.submit();
+    },
+    loadColors() {
+      this.loadingColors = true;
+      this.loadingColorsErrors = false;
+      setTimeout(() => {
+        axios.get(`${config.BASE_API_URL}/api/colors`)
+          .then((response) => {
+            this.colorsData = response.data;
+          })
+          .catch(() => {
+            this.loadingColorsErrors = true;
+          })
+          .then(() => {
+            this.loadingColors = false;
+          });
+      }, 5000);
     },
   },
 };

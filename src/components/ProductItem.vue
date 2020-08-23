@@ -6,12 +6,13 @@
     >
       <img
         :src="product.img"
-        :alt="product.name"
+        :alt="product.title"
+        style="width:100%;height:100%;object-fit:contain;"
       >
     </router-link>
     <h3 class="catalog__title">
       <a href="#">
-        {{ product.name }}
+        {{ product.title }}
       </a>
     </h3>
     <span class="catalog__price">
@@ -57,7 +58,7 @@ export default {
   },
   data() {
     return {
-      currentColor: '',
+      currentColor: 0,
     };
   },
   computed: {
