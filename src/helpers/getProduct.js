@@ -1,6 +1,5 @@
-export default (state, { productId, color }) => (
+export default (state, { productId }) => (
   state.cartProducts.find((item) => (
     item.productId === productId
-    && (!color || item.color === color)
   ))
 );

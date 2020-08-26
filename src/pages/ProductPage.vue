@@ -98,13 +98,13 @@
   </div>
 </template>
 <script>
+import { BASE_API_URL } from '@/config';
 import numberFormat from '@/helpers/numberFormat';
 import ProductColors from '@/components/ProductColors.vue';
 import Spinner from '@/components/Spinner.vue';
 import Breadcrumbs from '@/components/Breadcrumbs.vue';
 import ProductAmount from '@/components/ProductAmount.vue';
 import axios from 'axios';
-import config from '@/config';
 
 export default {
   components: {
@@ -154,8 +154,13 @@ export default {
       ];
     },
   },
-  created() {
-    this.loadProduct();
+  watch: {
+    '$route.params.id': {
+      handler() {
+        this.loadProduct();
+      },
+      immediate: true,
+    },
   },
   methods: {
     numberFormat,
@@ -163,7 +168,7 @@ export default {
       this.loadingProduct = true;
       this.loadingProductFail = false;
       setTimeout(() => {
-        axios.get(`${config.BASE_API_URL}/api/products/${+this.$route.params.id}`)
+        axios.get(`${BASE_API_URL}/api/products/${+this.$route.params.id}`)
           .then((response) => {
             this.productData = response.data;
           })

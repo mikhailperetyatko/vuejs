@@ -5,21 +5,14 @@
         :src="item.product.img"
         width="120"
         height="120"
-        :alt="item.product.name"
+        :alt="item.product.title"
       >
     </div>
     <h3 class="product__title">
-      {{ item.product.name }}
+      {{ item.product.title }}
     </h3>
-    <p class="product__info product__info--color">
-      Цвет:
-      <span>
-        <i :style="`background-color: ${item.color}`" />
-        {{ currentColor.title }}
-      </span>
-    </p>
     <span class="product__code">
-      {{ item.product.id }}
+      Артикул: {{ item.product.id }}
     </span>
     <ProductAmount
       :amount.sync="amount"

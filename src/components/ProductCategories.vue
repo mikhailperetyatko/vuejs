@@ -37,9 +37,9 @@
   </div>
 </template>
 <script>
-import axios from 'axios';
-import config from '@/config';
 import SpinnerDots from '@/components/SpinnerDots.vue';
+import axios from 'axios';
+import { BASE_API_URL } from '@/config';
 
 export default {
   name: 'ProductCategories',
@@ -90,7 +90,7 @@ export default {
       this.loadingCategories = true;
       this.loadingCategoriesFail = false;
       setTimeout(() => {
-        axios.get(`${config.BASE_API_URL}/api/productCategories`)
+        axios.get(`${BASE_API_URL}/api/productCategories`)
           .then((response) => {
             this.categoriesData = response.data;
           })

@@ -117,7 +117,7 @@ import ProductColors from '@/components/ProductColors.vue';
 import SpinnerDots from '@/components/SpinnerDots.vue';
 import ProductCategories from '@/components/ProductCategories.vue';
 import axios from 'axios';
-import config from '@/config';
+import { BASE_API_URL } from '@/config';
 
 export default {
   name: 'ProductFilter',
@@ -167,7 +167,7 @@ export default {
       this.loadingColors = true;
       this.loadingColorsErrors = false;
       setTimeout(() => {
-        axios.get(`${config.BASE_API_URL}/api/colors`)
+        axios.get(`${BASE_API_URL}/api/colors`)
           .then((response) => {
             this.colorsData = response.data;
           })
@@ -177,7 +177,7 @@ export default {
           .then(() => {
             this.loadingColors = false;
           });
-      }, 5000);
+      }, 2000);
     },
   },
 };

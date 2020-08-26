@@ -37,7 +37,7 @@ import ProductList from '@/components/ProductList.vue';
 import BasePagination from '@/components/BasePagination.vue';
 import ProductFilter from '@/components/ProductFilter.vue';
 import axios from 'axios';
-import config from '@/config.js';
+import { BASE_API_URL } from '@/config';
 
 export default {
   components: {
@@ -83,7 +83,7 @@ export default {
       this.loadingProducts = true;
       this.loadingProductsErrors = false;
       setTimeout(() => {
-        axios.get(`${config.BASE_API_URL}/api/products`, {
+        axios.get(`${BASE_API_URL}/api/products`, {
           params: {
             page: this.page,
             limit: this.productsPerPage,
@@ -105,7 +105,7 @@ export default {
           .then(() => {
             this.loadingProducts = false;
           });
-      }, 5000);
+      }, 2000);
     },
   },
 };
