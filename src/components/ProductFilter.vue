@@ -118,6 +118,7 @@ import SpinnerDots from '@/components/SpinnerDots.vue';
 import ProductCategories from '@/components/ProductCategories.vue';
 import axios from 'axios';
 import { BASE_API_URL } from '@/config';
+import timeoutWithPromise from '@/helpers/timeoutWithPromise';
 
 export default {
   name: 'ProductFilter',
@@ -166,18 +167,19 @@ export default {
     loadColors() {
       this.loadingColors = true;
       this.loadingColorsErrors = false;
-      setTimeout(() => {
-        axios.get(`${BASE_API_URL}/api/colors`)
-          .then((response) => {
-            this.colorsData = response.data;
-          })
-          .catch(() => {
-            this.loadingColorsErrors = true;
-          })
-          .then(() => {
-            this.loadingColors = false;
-          });
-      }, 2000);
+      return timeoutWithPromise()
+        .then(() => {
+          axios.get(`${BASE_API_URL}/api/colors`)
+            .then((response) => {
+              this.colorsData = response.data;
+            })
+            .catch(() => {
+              this.loadingColorsErrors = true;
+            })
+            .then(() => {
+              this.loadingColors = false;
+            });
+        });
     },
   },
 };

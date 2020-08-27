@@ -38,6 +38,7 @@ import BasePagination from '@/components/BasePagination.vue';
 import ProductFilter from '@/components/ProductFilter.vue';
 import axios from 'axios';
 import { BASE_API_URL } from '@/config';
+import timeoutWithPromise from '@/helpers/timeoutWithPromise';
 
 export default {
   components: {
@@ -82,30 +83,31 @@ export default {
     loadProducts() {
       this.loadingProducts = true;
       this.loadingProductsErrors = false;
-      setTimeout(() => {
-        axios.get(`${BASE_API_URL}/api/products`, {
-          params: {
-            page: this.page,
-            limit: this.productsPerPage,
-            ...this.filters,
-          },
-        })
-          .then((response) => {
-            this.productsData = {
-              items: response.data.items.map((item) => ({
-                ...item,
-                img: item.image.file.url,
-              })),
-              pagination: response.data.pagination,
-            };
+      return timeoutWithPromise()
+        .then(() => {
+          axios.get(`${BASE_API_URL}/api/products`, {
+            params: {
+              page: this.page,
+              limit: this.productsPerPage,
+              ...this.filters,
+            },
           })
-          .catch(() => {
-            this.loadingProductsErrors = true;
-          })
-          .then(() => {
-            this.loadingProducts = false;
-          });
-      }, 2000);
+            .then((response) => {
+              this.productsData = {
+                items: response.data.items.map((item) => ({
+                  ...item,
+                  img: item.image.file.url,
+                })),
+                pagination: response.data.pagination,
+              };
+            })
+            .catch(() => {
+              this.loadingProductsErrors = true;
+            })
+            .then(() => {
+              this.loadingProducts = false;
+            });
+        });
     },
   },
 };

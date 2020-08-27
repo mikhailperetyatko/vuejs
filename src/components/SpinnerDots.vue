@@ -1,10 +1,16 @@
 <template>
   <div>
-    Загрузка{{ dots }}
+    {{ title }}{{ dots }}
   </div>
 </template>
 <script>
 export default {
+  props: {
+    title: {
+      type: String,
+      default: 'Загрузка',
+    },
+  },
   data() {
     return {
       dots: '',

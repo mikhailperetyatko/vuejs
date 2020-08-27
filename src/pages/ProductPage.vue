@@ -64,8 +64,6 @@
                 <ProductColors
                   :colors="product.colors"
                   :color-checked.sync="currentColor"
-                  :valid.sync="validate.color"
-                  :validated-info-hidden="validatedInfoHidden"
                 />
               </fieldset>
 
@@ -81,11 +79,19 @@
                 class="button button--primery"
                 type="submit"
                 style="margin-top:20px;width:100%"
+                :disabled="addingProductToCart"
               >
                 В корзину
               </button>
-              <b v-if="addToCartSuccess">
+              <SpinnerDots
+                v-show="addingProductToCart"
+                title="Добавляем товар в корзину"
+              />
+              <b v-show="addToCartSuccess">
                 Товар успешно доавлен в корзину!
+              </b>
+              <b v-show="addToCartFail">
+                При добавлении товара в корзину произошла ошибка, попробуйте еще раз.
               </b>
             </form>
           </div>
@@ -102,9 +108,12 @@ import { BASE_API_URL } from '@/config';
 import numberFormat from '@/helpers/numberFormat';
 import ProductColors from '@/components/ProductColors.vue';
 import Spinner from '@/components/Spinner.vue';
+import SpinnerDots from '@/components/SpinnerDots.vue';
 import Breadcrumbs from '@/components/Breadcrumbs.vue';
 import ProductAmount from '@/components/ProductAmount.vue';
 import axios from 'axios';
+import { mapActions } from 'vuex';
+import timeoutWithPromise from '@/helpers/timeoutWithPromise';
 
 export default {
   components: {
@@ -112,6 +121,7 @@ export default {
     Breadcrumbs,
     ProductAmount,
     Spinner,
+    SpinnerDots,
   },
   filters: {
     numberFormat,
@@ -122,10 +132,13 @@ export default {
       currentColor: 0,
       validate: {},
       addToCartSuccess: false,
+      addToCartFail: false,
       validatedInfoHidden: true,
       productData: null,
       loadingProduct: false,
       loadingProductFail: false,
+      addingProductToCart: false,
+
     };
   },
   computed: {
@@ -163,35 +176,46 @@ export default {
     },
   },
   methods: {
+    ...mapActions(['addProductToCart']),
     numberFormat,
     loadProduct() {
       this.loadingProduct = true;
       this.loadingProductFail = false;
-      setTimeout(() => {
-        axios.get(`${BASE_API_URL}/api/products/${+this.$route.params.id}`)
-          .then((response) => {
-            this.productData = response.data;
-          })
-          .catch(() => {
-            this.loadingProductFail = true;
-          })
-          .then(() => {
-            this.loadingProduct = false;
-          });
-      }, 2000);
+      return timeoutWithPromise()
+        .then(() => {
+          axios.get(`${BASE_API_URL}/api/products/${+this.$route.params.id}`)
+            .then((response) => {
+              this.productData = response.data;
+            })
+            .catch(() => {
+              this.loadingProductFail = true;
+            })
+            .then(() => {
+              this.loadingProduct = false;
+            });
+        });
     },
     addToCart() {
       this.validatedInfoHidden = false;
+      this.addToCartSuccess = false;
+      this.addToCartFail = false;
       if (Object.values(this.validate).indexOf(false) === -1) {
-        this.$store.commit(
-          'addProductToCart',
+        this.addingProductToCart = true;
+        this.addProductToCart(
           {
             productId: this.product.id,
             amount: this.amount,
-            color: this.currentColor,
           },
-        );
-        this.addToCartSuccess = true;
+        )
+          .then(() => {
+            this.addToCartSuccess = true;
+          })
+          .catch(() => {
+            this.addToCartFail = true;
+          })
+          .then(() => {
+            this.addingProductToCart = false;
+          });
       }
     },
   },

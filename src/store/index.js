@@ -3,6 +3,7 @@ import Vuex from 'vuex';
 import getProduct from '@/helpers/getProduct';
 import axios from 'axios';
 import { BASE_API_URL } from '@/config';
+import timeoutWithPromise from '@/helpers/timeoutWithPromise';
 
 Vue.use(Vuex);
 
@@ -33,11 +34,6 @@ export default new Vuex.Store({
     },
   },
   mutations: {
-    addProductToCart(state, { productId, amount }) {
-      const product = getProduct(state, { productId });
-      if (product) product.amount += +amount;
-      else state.cartProducts.push({ productId, amount });
-    },
     updateCartProduct(state, { productId, amount }) {
       const product = getProduct(state, { productId });
       if (product) product.amount = amount;
@@ -62,7 +58,7 @@ export default new Vuex.Store({
   },
   actions: {
     loadCart(context) {
-      axios.get(`${BASE_API_URL}/api/baskets`, {
+      return axios.get(`${BASE_API_URL}/api/baskets`, {
         params: {
           userAccessKey: context.state.userAccessKey,
         },
@@ -75,6 +71,59 @@ export default new Vuex.Store({
           context.commit('updateCartProductsData', response.data.items);
           context.commit('syncCartProducts');
         });
+    },
+    addProductToCart(context, { productId, amount }) {
+      return timeoutWithPromise()
+        .then(() => {
+          axios.post(
+            `${BASE_API_URL}/api/baskets/products`,
+            {
+              productId,
+              quantity: amount,
+            },
+            {
+              params: {
+                userAccessKey: context.state.userAccessKey,
+              },
+            },
+          )
+            .then((response) => {
+              context.commit('updateCartProductsData', response.data.items);
+              context.commit('syncCartProducts');
+            });
+        });
+    },
+    updateProductCart(context, { productId, amount }) {
+      context.commit('updateCartProduct', { productId, amount });
+      return axios.put(
+        `${BASE_API_URL}/api/baskets/products`,
+        {
+          productId,
+          quantity: amount,
+        },
+        {
+          params: {
+            userAccessKey: context.state.userAccessKey,
+          },
+        },
+      )
+        .then((response) => context.commit('updateCartProductsData', response.data.items))
+        .catch(() => context.commit('syncCartProducts'));
+    },
+    deleteProductCart(context, { productId }) {
+      context.commit('deleteCartProduct', { productId });
+      return axios({
+        method: 'delete',
+        url: `${BASE_API_URL}/api/baskets/products`,
+        params: {
+          userAccessKey: context.state.userAccessKey,
+        },
+        data: {
+          productId,
+        },
+      })
+        .then((response) => context.commit('updateCartProductsData', response.data.items))
+        .catch(() => context.commit('syncCartProducts'));
     },
   },
 });

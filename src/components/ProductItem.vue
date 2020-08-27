@@ -40,7 +40,7 @@
 <script>
 import numberFormat from '@/helpers/numberFormat';
 import ProductColors from '@/components/ProductColors.vue';
-import { mapGetters } from 'vuex';
+import { mapGetters, mapActions } from 'vuex';
 
 export default {
   name: 'ProductItem',
@@ -73,13 +73,12 @@ export default {
     },
   },
   methods: {
+    ...mapActions(['addProductToCart']),
     addToCart() {
-      this.$store.commit(
-        'addProductToCart',
+      this.addProductToCart(
         {
           productId: this.product.id,
           amount: 1,
-          color: this.currentColor,
         },
       );
     },

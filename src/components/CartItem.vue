@@ -28,7 +28,6 @@
       aria-label="Удалить товар из корзины"
       @click.prevent="deleteProduct({
         productId: item.product.id,
-        color: item.color,
       })"
     >
       <svg
@@ -44,7 +43,7 @@
 <script>
 import numberFormat from '@/helpers/numberFormat';
 import colors from '@/data/colors';
-import { mapMutations } from 'vuex';
+import { mapActions } from 'vuex';
 import ProductAmount from '@/components/ProductAmount.vue';
 
 export default {
@@ -77,11 +76,9 @@ export default {
       set(value) {
         this.item.amount = value;
         if (this.validate.amount) {
-          this.$store.commit(
-            'updateCartProduct',
+          this.updateProductCart(
             {
               productId: this.item.product.id,
-              color: this.item.color,
               amount: value,
             },
           );
@@ -90,7 +87,10 @@ export default {
     },
   },
   methods: {
-    ...mapMutations({ deleteProduct: 'deleteCartProduct' }),
+    ...mapActions({
+      deleteProduct: 'deleteProductCart',
+      updateProductCart: 'updateProductCart',
+    }),
   },
 };
 </script>
