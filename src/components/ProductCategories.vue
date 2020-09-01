@@ -40,6 +40,7 @@
 import SpinnerDots from '@/components/SpinnerDots.vue';
 import axios from 'axios';
 import { BASE_API_URL } from '@/config';
+import timeoutWithPromise from '@/helpers/timeoutWithPromise';
 
 export default {
   name: 'ProductCategories',
@@ -89,18 +90,19 @@ export default {
     loadCategories() {
       this.loadingCategories = true;
       this.loadingCategoriesFail = false;
-      setTimeout(() => {
-        axios.get(`${BASE_API_URL}/api/productCategories`)
-          .then((response) => {
-            this.categoriesData = response.data;
-          })
-          .catch(() => {
-            this.loadingCategoriesFail = true;
-          })
-          .then(() => {
-            this.loadingCategories = false;
-          });
-      }, 2000);
+      return timeoutWithPromise()
+        .then(() => {
+          axios.get(`${BASE_API_URL}/api/productCategories`)
+            .then((response) => {
+              this.categoriesData = response.data;
+            })
+            .catch(() => {
+              this.loadingCategoriesFail = true;
+            })
+            .then(() => {
+              this.loadingCategories = false;
+            });
+        });
     },
     categoryChange() {
       if (this.inputType === 'checkbox') {
