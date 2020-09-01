@@ -49,13 +49,12 @@
             :amount="itemsAmount"
           />
         </div>
-
         <div class="cart__block">
           <p class="cart__desc">
             Мы&nbsp;посчитаем стоимость доставки на&nbsp;следующем этапе
           </p>
           <p class="cart__price">
-            Итого: <span>{{ totalPrice | numberFormat }} ₽</span>
+            Итого: <span>{{ animatedNumber | numberFormat }} ₽</span>
           </p>
 
           <button
@@ -98,6 +97,7 @@ export default {
     return {
       page: 1,
       itemsPerPage: 3,
+      tweenedNumber: 0,
     };
   },
   computed: {
@@ -120,10 +120,26 @@ export default {
     itemsAmount() {
       return paginationsComputedFunction.itemsAmount(this.productsInStore);
     },
+    animatedNumber() {
+      return this.tweenedNumber;
+    },
   },
   watch: {
     products() {
       if (this.products.length === 0 && this.page > 1) this.page -= 1;
+    },
+    totalPrice: {
+      handler() {
+        const interval = setInterval(() => {
+          const offset = Math.round((this.totalPrice - this.tweenedNumber) / 2);
+          if (this.tweenedNumber !== this.totalPrice) {
+            this.tweenedNumber += Math.abs(offset) > 1 ? offset : this.totalPrice - this.tweenedNumber;
+          } else {
+            clearInterval(interval);
+          }
+        }, 50);
+      },
+      immediate: true,
     },
   },
 };
