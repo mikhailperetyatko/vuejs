@@ -86,6 +86,7 @@
               <SpinnerDots
                 v-show="addingProductToCart"
                 title="Добавляем товар в корзину"
+                color="white"
               />
               <b v-show="addToCartSuccess">
                 Товар успешно доавлен в корзину!
