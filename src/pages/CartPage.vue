@@ -1,5 +1,6 @@
 <template>
   <main
+    v-if="!loadingInProgress"
     class="content container"
   >
     <link
@@ -69,7 +70,20 @@
     <div v-else>
       Ваша корзина пуста :(
     </div>
+    <div
+      v-show="loadFailed"
+      style="height:400px"
+    >
+      Произошла ошибка
+      <button @click="loadCart()">
+        Загрузить еще раз
+      </button>
+    </div>
   </main>
+  <SpinnerDots
+    v-else
+    style="height:400px"
+  />
 </template>
 <style>
 
@@ -82,17 +96,21 @@ import { mapGetters } from 'vuex';
 import amountFormat from '@/helpers/amountFormat';
 import numberFormat from '@/helpers/numberFormat';
 import paginationsComputedFunction from '@/helpers/paginationsComputedFunction';
+import Cartable from '@/components/Cartable.vue';
+import SpinnerDots from '@/components/SpinnerDots.vue';
 
 export default {
   components: {
     Breadcrumbs,
     CartItem,
     BasePagination,
+    SpinnerDots,
   },
   filters: {
     amountFormat,
     numberFormat,
   },
+  extends: Cartable,
   data() {
     return {
       page: 1,
@@ -123,6 +141,9 @@ export default {
     animatedNumber() {
       return this.tweenedNumber;
     },
+    loadingInProgress() {
+      return this.$store.getters.getStatus({ statusName: 'loadCart' }).statuses.loading;
+    },
   },
   watch: {
     products() {
@@ -131,10 +152,13 @@ export default {
     totalPrice: {
       handler() {
         const interval = setInterval(() => {
-          const offset = Math.round((this.totalPrice - this.tweenedNumber) / 2);
+          if (!this.offset) {
+            this.offset = Math.round((this.totalPrice - this.tweenedNumber) / 10);
+          }
           if (this.tweenedNumber !== this.totalPrice) {
-            this.tweenedNumber += Math.abs(offset) > 1 ? offset : this.totalPrice - this.tweenedNumber;
+            this.tweenedNumber += Math.abs(this.offset) < Math.abs(this.totalPrice - this.tweenedNumber) ? this.offset : this.totalPrice - this.tweenedNumber;
           } else {
+            this.offset = null;
             clearInterval(interval);
           }
         }, 50);

@@ -1,5 +1,6 @@
 <template>
   <router-link
+    v-if="!loadingInProgress"
     class="header__cart"
     aria-label="Корзина с товарами"
     :to="{ name: 'cart' }"
@@ -15,11 +16,32 @@
       class="header__count"
       aria-label="Количество товаров"
     >
-      {{ $store.state.cartProducts.length }}
+      {{ cartProductAmount | numberFormat }}
     </span>
   </router-link>
+  <SpinnerDots
+    v-else
+    title=""
+    color="white"
+  />
 </template>
 <script>
+import numberFormat from '@/helpers/numberFormat';
+import SpinnerDots from '@/components/SpinnerDots.vue';
+import Cartable from '@/components/Cartable.vue';
+
 export default {
+  components: {
+    SpinnerDots,
+  },
+  filters: {
+    numberFormat,
+  },
+  extends: Cartable,
+  computed: {
+    cartProductAmount() {
+      return this.$store.getters.cartDetailProducts.length;
+    },
+  },
 };
 </script>

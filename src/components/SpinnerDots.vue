@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div :style="`color:${color}`">
     {{ title }}{{ dots }}
   </div>
 </template>
@@ -9,6 +9,10 @@ export default {
     title: {
       type: String,
       default: 'Загрузка',
+    },
+    color: {
+      type: String,
+      default: 'black',
     },
   },
   data() {
