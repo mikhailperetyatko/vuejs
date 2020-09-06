@@ -77,22 +77,20 @@
         >
           Цвет
         </legend>
-        <SpinnerDots
-          v-if="loadingColors"
-        />
-        <div
-          v-if="loadingColorsErrors"
+        <Loadable
+          method="get"
+          url="/api/colors"
+          spinner-title="Загружаем цвета"
+          spinner-color="white"
+          @success="colorsData=$event.items"
         >
-          <button
-            @click="loadColors()"
-          >
-            Еще раз
-          </button>
-        </div>
-        <ProductColors
-          :color-checked.sync="currentFilters.colorId"
-          :colors="colors"
-        />
+          <template v-slot:content>
+            <ProductColors
+              :color-checked.sync="currentFilters.colorId"
+              :colors="colorsData"
+            />
+          </template>
+        </Loadable>
       </fieldset>
 
       <button
@@ -114,18 +112,15 @@
 
 <script>
 import ProductColors from '@/components/ProductColors.vue';
-import SpinnerDots from '@/components/SpinnerDots.vue';
 import ProductCategories from '@/components/ProductCategories.vue';
-import axios from 'axios';
-import { BASE_API_URL } from '@/config';
-import timeoutWithPromise from '@/helpers/timeoutWithPromise';
+import Loadable from '@/components/Loadable.vue';
 
 export default {
   name: 'ProductFilter',
   components: {
     ProductColors,
     ProductCategories,
-    SpinnerDots,
+    Loadable,
   },
   props: {
     filters: {
@@ -137,20 +132,8 @@ export default {
     return {
       currentFilters: { ...this.filters },
       categoryVisible: Object.entries(this.filters).filter((filter) => filter[1].length).length,
-      colorsData: null,
-      loadingColors: false,
-      loadingColorsErrors: false,
+      colorsData: [],
     };
-  },
-  computed: {
-    colors() {
-      return this.colorsData
-        ? this.colorsData.items
-        : [];
-    },
-  },
-  created() {
-    this.loadColors();
   },
   methods: {
     submit() {
@@ -163,23 +146,6 @@ export default {
       this.categoryVisible = false;
       this.$emit('resetPagination');
       this.submit();
-    },
-    loadColors() {
-      this.loadingColors = true;
-      this.loadingColorsErrors = false;
-      return timeoutWithPromise()
-        .then(() => {
-          axios.get(`${BASE_API_URL}/api/colors`)
-            .then((response) => {
-              this.colorsData = response.data;
-            })
-            .catch(() => {
-              this.loadingColorsErrors = true;
-            })
-            .then(() => {
-              this.loadingColors = false;
-            });
-        });
     },
   },
 };

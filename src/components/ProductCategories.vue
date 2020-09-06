@@ -1,51 +1,43 @@
 <template>
-  <SpinnerDots
-    v-if="loadingCategories"
-  />
-  <div
-    v-else-if="loadingCategoriesFail"
+  <Loadable
+    method="get"
+    url="/api/productCategories"
+    spinner-title="Загружаем категории"
+    @success="categoriesData=$event.items"
   >
-    <button @click="loadCategories()">
-      Еще раз
-    </button>
-  </div>
-  <div
-    v-else
-  >
-    <div
-      v-for="category in categories"
-      :key="category.id"
-    >
-      <label>
-        <input
-          v-if="inputType === 'checkbox'"
-          v-model="currentCategories"
-          type="checkbox"
-          :value="category.id"
-          @change="categoryChange()"
-        >
-        <input
-          v-else
-          v-model="currentCategory"
-          type="radio"
-          :value="category.id"
-          @change="categoryChange()"
-        >
-        {{ category.title }}
-      </label>
-    </div>
-  </div>
+    <template v-slot:content>
+      <div
+        v-for="category in categories"
+        :key="category.id"
+      >
+        <label>
+          <input
+            v-if="inputType === 'checkbox'"
+            v-model="currentCategories"
+            type="checkbox"
+            :value="category.id"
+            @change="categoryChange()"
+          >
+          <input
+            v-else
+            v-model="currentCategory"
+            type="radio"
+            :value="category.id"
+            @change="categoryChange()"
+          >
+          {{ category.title }}
+        </label>
+      </div>
+    </template>
+  </Loadable>
 </template>
 <script>
-import SpinnerDots from '@/components/SpinnerDots.vue';
-import axios from 'axios';
-import { BASE_API_URL } from '@/config';
-import timeoutWithPromise from '@/helpers/timeoutWithPromise';
+import Loadable from '@/components/Loadable.vue';
 
 export default {
   name: 'ProductCategories',
   components: {
-    SpinnerDots,
+    Loadable,
   },
   props: {
     categoriesChecked: {
@@ -65,16 +57,12 @@ export default {
     return {
       currentCategories: this.categoriesChecked,
       currentCategory: this.categoryChecked,
-      categoriesData: null,
-      loadingCategories: false,
-      loadingCategoriesFail: false,
+      categoriesData: [],
     };
   },
   computed: {
     categories() {
-      return this.categoriesData
-        ? this.categoriesData.items
-        : [];
+      return this.categoriesData;
     },
   },
   watch: {
@@ -83,27 +71,7 @@ export default {
       if (!Object.keys(this.categoryChecked).length) this.currentCategory = {};
     },
   },
-  created() {
-    this.loadCategories();
-  },
   methods: {
-    loadCategories() {
-      this.loadingCategories = true;
-      this.loadingCategoriesFail = false;
-      return timeoutWithPromise()
-        .then(() => {
-          axios.get(`${BASE_API_URL}/api/productCategories`)
-            .then((response) => {
-              this.categoriesData = response.data;
-            })
-            .catch(() => {
-              this.loadingCategoriesFail = true;
-            })
-            .then(() => {
-              this.loadingCategories = false;
-            });
-        });
-    },
     categoryChange() {
       if (this.inputType === 'checkbox') {
         this.$emit('update:categoriesChecked', this.currentCategories);

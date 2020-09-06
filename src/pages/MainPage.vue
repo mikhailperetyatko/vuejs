@@ -14,12 +14,21 @@
         @resetPagination="page = 1"
       />
       <section class="catalog">
-        <ProductList
-          :products="products"
-          :loading="loadingProducts"
-          :loading-errors="loadingProductsErrors"
-          @reloadProductList="loadProducts()"
-        />
+        <Loadable
+          method="get"
+          url="/api/products/"
+          :params="params"
+          @success="productsData=$event"
+        >
+          <template v-slot:spinner>
+            <Spinner />
+          </template>
+          <template v-slot:content>
+            <ProductList
+              :products="products"
+            />
+          </template>
+        </Loadable>
         <BasePagination
           v-if="productsAmount > productsPerPage"
           v-model="page"
@@ -36,15 +45,16 @@
 import ProductList from '@/components/ProductList.vue';
 import BasePagination from '@/components/BasePagination.vue';
 import ProductFilter from '@/components/ProductFilter.vue';
-import axios from 'axios';
-import { BASE_API_URL } from '@/config';
-import timeoutWithPromise from '@/helpers/timeoutWithPromise';
+import Spinner from '@/components/Spinner.vue';
+import Loadable from '@/components/Loadable.vue';
 
 export default {
   components: {
     ProductList,
     BasePagination,
     ProductFilter,
+    Spinner,
+    Loadable,
   },
   data() {
     return {
@@ -52,14 +62,15 @@ export default {
       productsPerPage: 6,
       productsData: null,
       filters: this.$route.params.filters ?? {},
-      loadingProducts: false,
-      loadingProductsErrors: false,
     };
   },
   computed: {
     products() {
       return this.productsData
-        ? this.productsData.items
+        ? this.productsData.items.map((item) => ({
+          ...item,
+          img: item.image.file.url,
+        }))
         : [];
     },
     productsAmount() {
@@ -67,47 +78,12 @@ export default {
         ? this.productsData.pagination.total
         : 0;
     },
-  },
-  watch: {
-    page() {
-      this.loadProducts();
-    },
-    filters() {
-      this.loadProducts();
-    },
-  },
-  created() {
-    this.loadProducts();
-  },
-  methods: {
-    loadProducts() {
-      this.loadingProducts = true;
-      this.loadingProductsErrors = false;
-      return timeoutWithPromise()
-        .then(() => {
-          axios.get(`${BASE_API_URL}/api/products`, {
-            params: {
-              page: this.page,
-              limit: this.productsPerPage,
-              ...this.filters,
-            },
-          })
-            .then((response) => {
-              this.productsData = {
-                items: response.data.items.map((item) => ({
-                  ...item,
-                  img: item.image.file.url,
-                })),
-                pagination: response.data.pagination,
-              };
-            })
-            .catch(() => {
-              this.loadingProductsErrors = true;
-            })
-            .then(() => {
-              this.loadingProducts = false;
-            });
-        });
+    params() {
+      return {
+        page: this.page,
+        limit: this.productsPerPage,
+        ...this.filters,
+      };
     },
   },
 };

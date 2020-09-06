@@ -1,5 +1,8 @@
 <template>
-  <div class="banter-loader">
+  <div
+    class="banter-loader"
+    height="450px"
+  >
     <div
       class="banter-loader__box"
       :style="`background: ${background};`"

@@ -1,89 +1,82 @@
 <template>
-  <main
-    v-if="!loadingInProgress"
-    class="content container"
+  <Loadable
+    spinner-title="Загружаем корзину"
+    :todo="() => productsInStore"
+    @success="cartData=$event.items"
   >
-    <link
-      href="https://cdn.jsdelivr.net/npm/animate.css@3.5.1"
-      rel="stylesheet"
-      type="text/css"
-    >
-    <div class="content__top">
-      <Breadcrumbs
-        :links="breadcrumbs"
-      />
-      <h1 class="content__title">
-        Корзина
-      </h1>
-      <span class="content__info">
-        Сейчас в корзине {{ $store.state.cartProducts.length | numberFormat | amountFormat }}
-      </span>
-    </div>
-
-    <section
-      v-if="itemsAmount"
-      class="cart"
-    >
-      <form
-        class="cart__form form"
-        action="#"
-        method="POST"
+    <template v-slot:content>
+      <main
+        class="content container"
       >
-        <div class="cart__field">
-          <transition-group
-            tag="ul"
-            name="custom-classes-transition"
-            enter-active-class="animated flipInX"
-            leave-active-class="animated flipOutX"
-          >
-            <CartItem
-              v-for="item in products"
-              :key="`${item.product.id}_${item.color}`"
-              :item="item"
-            />
-          </transition-group>
-          <BasePagination
-            v-if="itemsPerPage < itemsAmount"
-            v-model="page"
-            :current-page="page"
-            :per-page="itemsPerPage"
-            :amount="itemsAmount"
+        <link
+          href="https://cdn.jsdelivr.net/npm/animate.css@3.5.1"
+          rel="stylesheet"
+          type="text/css"
+        >
+        <div class="content__top">
+          <Breadcrumbs
+            :links="breadcrumbs"
           />
+          <h1 class="content__title">
+            Корзина
+          </h1>
+          <span class="content__info">
+            Сейчас в корзине {{ $store.state.cartProducts.length | numberFormat | amountFormat }}
+          </span>
         </div>
-        <div class="cart__block">
-          <p class="cart__desc">
-            Мы&nbsp;посчитаем стоимость доставки на&nbsp;следующем этапе
-          </p>
-          <p class="cart__price">
-            Итого: <span>{{ animatedNumber | numberFormat }} ₽</span>
-          </p>
-
-          <button
-            class="cart__button button button--primery"
-            type="submit"
+        <section
+          v-if="itemsAmount"
+          class="cart"
+        >
+          <form
+            class="cart__form form"
+            action="#"
+            method="POST"
           >
-            Оформить заказ
-          </button>
+            <div class="cart__field">
+              <transition-group
+                tag="ul"
+                name="custom-classes-transition"
+                enter-active-class="animated flipInX"
+                leave-active-class="animated flipOutX"
+              >
+                <CartItem
+                  v-for="item in products"
+                  :key="`${item.product.id}_${item.color}`"
+                  :item="item"
+                />
+              </transition-group>
+              <BasePagination
+                v-if="itemsPerPage < itemsAmount"
+                v-model="page"
+                :current-page="page"
+                :per-page="itemsPerPage"
+                :amount="itemsAmount"
+              />
+            </div>
+            <div class="cart__block">
+              <p class="cart__desc">
+                Мы&nbsp;посчитаем стоимость доставки на&nbsp;следующем этапе
+              </p>
+              <p class="cart__price">
+                Итого: <span>{{ animatedNumber | numberFormat }} ₽</span>
+              </p>
+
+              <button
+                class="cart__button button button--primery"
+                type="submit"
+              >
+                Оформить заказ
+              </button>
+            </div>
+          </form>
+        </section>
+        <div v-else>
+          Ваша корзина пуста :(
         </div>
-      </form>
-    </section>
-    <div v-else>
-      Ваша корзина пуста :(
-    </div>
-    <div
-      v-show="loadFailed"
-      style="height:400px"
-    >
-      Произошла ошибка
-      <button @click="loadCart()">
-        Загрузить еще раз
-      </button>
-    </div>
-  </main>
-  <SpinnerDots
-    v-else
-    style="height:400px"
-  />
+      </main>
+    </template>
+  </Loadable>
 </template>
 <style>
 
@@ -97,14 +90,14 @@ import amountFormat from '@/helpers/amountFormat';
 import numberFormat from '@/helpers/numberFormat';
 import paginationsComputedFunction from '@/helpers/paginationsComputedFunction';
 import Cartable from '@/components/Cartable.vue';
-import SpinnerDots from '@/components/SpinnerDots.vue';
+import Loadable from '@/components/Loadable.vue';
 
 export default {
   components: {
     Breadcrumbs,
     CartItem,
     BasePagination,
-    SpinnerDots,
+    Loadable,
   },
   filters: {
     amountFormat,
@@ -116,6 +109,7 @@ export default {
       page: 1,
       itemsPerPage: 3,
       tweenedNumber: 0,
+      cartData: {},
     };
   },
   computed: {
