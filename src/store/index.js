@@ -1,9 +1,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import getProduct from '@/helpers/getProduct';
-import axios from 'axios';
-import { BASE_API_URL } from '@/config';
-import timeoutWithPromise from '@/helpers/timeoutWithPromise';
+import HTTP from '@/http-common';
 
 Vue.use(Vuex);
 
@@ -12,39 +10,15 @@ export default new Vuex.Store({
     cartProducts: [],
     userAccessKey: null,
     cartProductsData: [],
-    axiosStatuses: [
-      {
-        name: 'loadCart',
-        statuses: {
-          loading: false,
-          failed: false,
-        },
-      },
-      {
-        name: 'addProductToCart',
-        statuses: {
-          loading: false,
-          failed: false,
-        },
-      },
-      {
-        name: 'updateProductCart',
-        statuses: {
-          loading: false,
-          failed: false,
-        },
-      },
-      {
-        name: 'deleteProductCart',
-        statuses: {
-          loading: false,
-          failed: false,
-        },
-      },
-    ],
+    httpStatuses: {
+      loadCart: null,
+      addProductToCart: null,
+      updateProductCart: null,
+      deleteProductCart: null,
+    },
   },
   getters: {
-    getStatus: (state) => ({ statusName }) => state.axiosStatuses.find((item) => item.name === statusName),
+    getStatus: (state) => ({ statusName }) => state.httpStatuses[statusName],
     product: (state) => ({ productId }) => (
       getProduct(state, { productId })
     ),
@@ -86,121 +60,96 @@ export default new Vuex.Store({
         amount: item.quantity,
       }));
     },
-    setLoadStatus(state, status) {
-      state.axiosStatuses.find((item) => item.name === status.name).statuses.loading = status.value;
+    setLoadStatus(state, { statusName }) {
+      state.httpStatuses[statusName] = 'loading';
     },
-    setFailStatus(state, status) {
-      state.axiosStatuses.find((item) => item.name === status.name).statuses.failed = status.value;
+    setFailStatus(state, { statusName }) {
+      state.httpStatuses[statusName] = 'faild';
+    },
+    cancelStatus(state, { statusName }) {
+      state.httpStatuses[statusName] = null;
     },
   },
   actions: {
     loadCart(context) {
-      context.commit('setLoadStatus', { name: 'loadCart', value: true });
-      context.commit('setFailStatus', { name: 'loadCart', value: false });
-      return timeoutWithPromise()
-        .then(() => {
-          axios.get(`${BASE_API_URL}/api/baskets`, {
-            params: {
-              userAccessKey: context.state.userAccessKey,
-            },
-          })
-            .then((response) => {
-              if (!context.state.userAccessKey) {
-                localStorage.setItem('userAccessKey', response.data.user.accessKey);
-                context.commit('updateUserAccessKey', response.data.user.accessKey);
-              }
-              context.commit('updateCartProductsData', response.data.items);
-              context.commit('syncCartProducts');
-            })
-            .catch(() => {
-              context.commit('setFailStatus', { name: 'loadCart', value: true });
-            })
-            .then(() => {
-              context.commit('setLoadStatus', { name: 'loadCart', value: false });
-            });
+      context.commit('setLoadStatus', { statusName: 'loadCart' });
+      return HTTP({
+        method: 'get',
+        url: '/api/baskets',
+        params: { userAccessKey: context.state.userAccessKey },
+      })
+        .then((response) => {
+          if (!context.state.userAccessKey) {
+            localStorage.setItem('userAccessKey', response.data.user.accessKey);
+            context.commit('updateUserAccessKey', response.data.user.accessKey);
+          }
+          context.commit('updateCartProductsData', response.data.items);
+          context.commit('syncCartProducts');
+          context.commit('cancelStatus', { statusName: 'loadCart' });
+        })
+        .catch(() => {
+          context.commit('setFailStatus', { statusName: 'loadCart' });
         });
     },
     addProductToCart(context, { productId, amount }) {
-      context.commit('setLoadStatus', { name: 'addProductToCart', value: true });
-      context.commit('setFailStatus', { name: 'addProductToCart', value: false });
-      return timeoutWithPromise()
-        .then(() => {
-          axios.post(
-            `${BASE_API_URL}/api/baskets/products`,
-            {
-              productId,
-              quantity: amount,
-            },
-            {
-              params: {
-                userAccessKey: context.state.userAccessKey,
-              },
-            },
-          )
-            .then((response) => {
-              context.commit('updateCartProductsData', response.data.items);
-              context.commit('syncCartProducts');
-            })
-            .catch(() => {
-              context.commit('setFailStatus', { name: 'addProductToCart', value: true });
-            })
-            .then(() => {
-              context.commit('setLoadStatus', { name: 'addProductToCart', value: false });
-            });
+      context.commit('setLoadStatus', { statusName: 'addProductToCart' });
+      return HTTP({
+        method: 'post',
+        url: '/api/baskets/products',
+        params: { userAccessKey: context.state.userAccessKey },
+        data: {
+          productId,
+          quantity: amount,
+        },
+      })
+        .then((response) => {
+          context.commit('updateCartProductsData', response.data.items);
+          context.commit('syncCartProducts');
+          context.commit('cancelStatus', { statusName: 'addProductToCart' });
+        })
+        .catch(() => {
+          context.commit('setFailStatus', { statusName: 'addProductToCart' });
         });
     },
     updateProductCart(context, { productId, amount }) {
-      context.commit('setLoadStatus', { name: 'updateProductCart', value: true });
-      context.commit('setFailStatus', { name: 'updateProductCart', value: false });
+      context.commit('setLoadStatus', { statusName: 'updateProductCart' });
       context.commit('updateCartProduct', { productId, amount });
-      return timeoutWithPromise()
-        .then(() => {
-          axios.put(
-            `${BASE_API_URL}/api/baskets/products`,
-            {
-              productId,
-              quantity: amount,
-            },
-            {
-              params: {
-                userAccessKey: context.state.userAccessKey,
-              },
-            },
-          )
-            .then((response) => context.commit('updateCartProductsData', response.data.items))
-            .catch(() => {
-              context.commit('syncCartProducts');
-              context.commit('setFailStatus', { name: 'updateProductCart', value: true });
-            })
-            .then(() => {
-              context.commit('setLoadStatus', { name: 'updateProductCart', value: false });
-            });
+      return HTTP({
+        method: 'put',
+        url: '/api/baskets/products',
+        params: { userAccessKey: context.state.userAccessKey },
+        data: {
+          productId,
+          quantity: amount,
+        },
+      })
+        .then((response) => {
+          context.commit('updateCartProductsData', response.data.items);
+          context.commit('cancelStatus', { statusName: 'updateCartProductsData' });
+        })
+        .catch(() => {
+          context.commit('syncCartProducts');
+          context.commit('setFailStatus', { statusName: 'updateProductCart' });
         });
     },
     deleteProductCart(context, { productId }) {
-      context.commit('setLoadStatus', { name: 'deleteProductCart', value: true });
-      context.commit('setFailStatus', { name: 'deleteProductCart', value: false });
+      context.commit('setLoadStatus', { statusName: 'deleteProductCart' });
       context.commit('deleteCartProduct', { productId });
-      return timeoutWithPromise()
-        .then(() => {
-          axios({
-            method: 'delete',
-            url: `${BASE_API_URL}/api/baskets/products`,
-            params: {
-              userAccessKey: context.state.userAccessKey,
-            },
-            data: {
-              productId,
-            },
-          })
-            .then((response) => context.commit('updateCartProductsData', response.data.items))
-            .catch(() => {
-              context.commit('syncCartProducts');
-              context.commit('setFailStatus', { name: 'deleteProductCart', value: true });
-            })
-            .then(() => {
-              context.commit('setLoadStatus', { name: 'deleteProductCart', value: false });
-            });
+      return HTTP({
+        method: 'delete',
+        url: '/api/baskets/products',
+        params: { userAccessKey: context.state.userAccessKey },
+        data: {
+          productId,
+        },
+      })
+        .then((response) => {
+          context.commit('updateCartProductsData', response.data.items);
+          context.commit('cancelStatus', { statusName: 'deleteProductCart' });
+        })
+        .catch(() => {
+          context.commit('syncCartProducts');
+          context.commit('setFailStatus', { name: 'deleteProductCart', value: true });
         });
     },
   },

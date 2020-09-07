@@ -27,6 +27,12 @@
         :color-checked.sync="currentColor"
       />
     </fieldset>
+    <Loadable
+      :auto-load="false"
+      spinner-title="Добавляем товар в корзину"
+      :forced-loading-in-progress="loadingInProgress && addToCartProductId !== null"
+      :forced-load-failed="loadFailed && addToCartProductId !== null"
+    />
     <b v-if="productExistsInCart">
       Товар в
       <router-link
@@ -41,15 +47,19 @@
 import numberFormat from '@/helpers/numberFormat';
 import ProductColors from '@/components/ProductColors.vue';
 import { mapGetters, mapActions } from 'vuex';
+import Loadable from '@/components/Loadable.vue';
+import Cartable from '@/components/Cartable.vue';
 
 export default {
   name: 'ProductItem',
   components: {
     ProductColors,
+    Loadable,
   },
   filters: {
     numberFormat,
   },
+  extends: Cartable,
   props: {
     product: {
       type: Object,
@@ -59,6 +69,7 @@ export default {
   data() {
     return {
       currentColor: 0,
+      addToCartProductId: null,
     };
   },
   computed: {
@@ -75,6 +86,7 @@ export default {
   methods: {
     ...mapActions(['addProductToCart']),
     addToCart() {
+      this.addToCartProductId = this.product.id;
       this.addProductToCart(
         {
           productId: this.product.id,

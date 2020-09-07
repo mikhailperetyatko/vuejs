@@ -42,7 +42,6 @@
 </template>
 <script>
 import numberFormat from '@/helpers/numberFormat';
-import colors from '@/data/colors';
 import { mapActions } from 'vuex';
 import ProductAmount from '@/components/ProductAmount.vue';
 
@@ -67,7 +66,7 @@ export default {
   },
   computed: {
     currentColor() {
-      return colors.find((color) => this.item.color === color.rgb);
+      return this.item.colors.find((color) => this.item.color === color.rgb);
     },
     amount: {
       get() {

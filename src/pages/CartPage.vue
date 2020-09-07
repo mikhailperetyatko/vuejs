@@ -1,8 +1,9 @@
 <template>
   <Loadable
+    :auto-load="false"
     spinner-title="Загружаем корзину"
-    :todo="() => productsInStore"
-    @success="cartData=$event.items"
+    :forced-loading-in-progress="loadingInProgress"
+    :forced-load-failed="loadFailed"
   >
     <template v-slot:content>
       <main
@@ -136,7 +137,7 @@ export default {
       return this.tweenedNumber;
     },
     loadingInProgress() {
-      return this.$store.getters.getStatus({ statusName: 'loadCart' }).statuses.loading;
+      return this.$store.getters.getStatus({ statusName: 'loadCart' }) === 'loading';
     },
   },
   watch: {

@@ -4,12 +4,12 @@ import { mapActions } from 'vuex';
 export default {
   computed: {
     loadingInProgress() {
-      return this.$store.getters.getStatus({ statusName: 'loadCart' }).statuses.loading
-        || this.$store.getters.getStatus({ statusName: 'addProductToCart' }).statuses.loading
-        || this.$store.getters.getStatus({ statusName: 'deleteProductCart' }).statuses.loading;
+      return this.$store.getters.getStatus({ statusName: 'loadCart' }) === 'loading'
+        || this.$store.getters.getStatus({ statusName: 'addProductToCart' }) === 'loading'
+        || this.$store.getters.getStatus({ statusName: 'deleteProductCart' }) === 'loading';
     },
     loadFailed() {
-      return this.$store.getters.getStatus({ statusName: 'loadCart' }).statuses.failed;
+      return this.$store.getters.getStatus({ statusName: 'loadCart' }) === 'faild';
     },
   },
   methods: {

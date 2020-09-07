@@ -66,11 +66,19 @@ export default {
       default: null,
       type: Function,
     },
+    forcedLoadingInProgress: {
+      default: false,
+      type: Boolean,
+    },
+    forcedLoadFailed: {
+      default: false,
+      type: Boolean,
+    },
   },
   data() {
     return {
-      loadingInProgress: false,
-      loadFailed: false,
+      loadingInProgress: this.forcedLoadingInProgress,
+      loadFailed: this.forcedLoadFailed,
     };
   },
   computed: {
@@ -83,8 +91,13 @@ export default {
       this.load();
     },
     params() {
-      console.log('params');
       this.load();
+    },
+    forcedLoadingInProgress(value) {
+      this.loadingInProgress = value;
+    },
+    forcedLoadFailed(value) {
+      this.loadFailed = value;
     },
   },
   created() {

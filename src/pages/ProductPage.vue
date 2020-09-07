@@ -4,8 +4,12 @@
     :url="`/api/products/${$route.params.id}`"
     @success="productData=$event"
   >
-    <template v-slot:spinner>
-      <Spinner />
+    <template
+      v-slot:spinner
+    >
+      <div style="height:450px">
+        <Spinner />
+      </div>
     </template>
     <template v-slot:content>
       <main
@@ -74,16 +78,15 @@
                 >
                   В корзину
                 </button>
-                <SpinnerDots
-                  v-show="addingProductToCart"
-                  title="Добавляем товар в корзину"
-                  color="white"
+                <Loadable
+                  :auto-load="false"
+                  spinner-title="Добавляем товар в корзину"
+                  spinner-color="white"
+                  :forced-loading-in-progress="loadingInProgress"
+                  :forced-load-failed="loadFailed"
                 />
-                <b v-show="addToCartSuccess">
-                  Товар успешно доавлен в корзину!
-                </b>
-                <b v-show="addToCartFail">
-                  При добавлении товара в корзину произошла ошибка, попробуйте еще раз.
+                <b v-if="productExistsInCart">
+                  Товар в Козине.
                 </b>
               </form>
             </div>
@@ -100,11 +103,11 @@
 import numberFormat from '@/helpers/numberFormat';
 import ProductColors from '@/components/ProductColors.vue';
 import Spinner from '@/components/Spinner.vue';
-import SpinnerDots from '@/components/SpinnerDots.vue';
 import Breadcrumbs from '@/components/Breadcrumbs.vue';
 import ProductAmount from '@/components/ProductAmount.vue';
-import { mapActions } from 'vuex';
+import { mapActions, mapGetters } from 'vuex';
 import Loadable from '@/components/Loadable.vue';
+import Cartable from '@/components/Cartable.vue';
 
 export default {
   components: {
@@ -112,12 +115,12 @@ export default {
     Breadcrumbs,
     ProductAmount,
     Spinner,
-    SpinnerDots,
     Loadable,
   },
   filters: {
     numberFormat,
   },
+  extends: Cartable,
   data() {
     return {
       amount: 1,
@@ -131,6 +134,10 @@ export default {
     };
   },
   computed: {
+    ...mapGetters({ getProduct: 'product' }),
+    productExistsInCart() {
+      return this.getProduct({ productId: this.product.id }) !== undefined;
+    },
     product() {
       return this.productData ?? {};
     },
