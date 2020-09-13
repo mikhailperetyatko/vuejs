@@ -31,8 +31,7 @@
         >
           <form
             class="cart__form form"
-            action="#"
-            method="POST"
+            @submit="$router.push({ name: 'order' })"
           >
             <div class="cart__field">
               <transition-group

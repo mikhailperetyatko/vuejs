@@ -15,6 +15,9 @@ export default {
     deleteProductCartStatus() {
       return this.$store.getters.getStatus('deleteProductCart');
     },
+    cartProductAmount() {
+      return this.$store.getters.cartDetailProducts.length;
+    },
   },
   methods: {
     ...mapActions(['loadCart']),

@@ -43,10 +43,5 @@ export default {
     numberFormat,
   },
   extends: Cartable,
-  computed: {
-    cartProductAmount() {
-      return this.$store.getters.cartDetailProducts.length;
-    },
-  },
 };
 </script>
