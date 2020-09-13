@@ -67,6 +67,9 @@ export default {
     };
   },
   watch: {
+    amount(value) {
+      this.currentAmount = value;
+    },
     currentAmount() {
       this.getValidate();
     },

@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="loadingInProgress"
+    v-if="currentStatus === pendingStatus"
   >
     <slot
       name="spinner"
@@ -12,7 +12,7 @@
     </slot>
   </div>
   <div
-    v-else-if="loadFailed"
+    v-else-if="currentStatus === errorStatus"
   >
     Произошла ошибка
     <button @click="load()">
@@ -62,28 +62,30 @@ export default {
       default: true,
       type: Boolean,
     },
-    todo: {
+    doFunc: {
       default: null,
       type: Function,
     },
-    forcedLoadingInProgress: {
-      default: false,
-      type: Boolean,
+    status: {
+      default: 'pending',
+      type: String,
     },
-    forcedLoadFailed: {
-      default: false,
-      type: Boolean,
+    id: {
+      default: null,
+      type: Number,
     },
   },
   data() {
     return {
-      loadingInProgress: this.forcedLoadingInProgress,
-      loadFailed: this.forcedLoadFailed,
+      currentStatus: this.status,
+      pendingStatus: `pending${this.id ? `:${this.id}` : ''}`,
+      errorStatus: `error${this.id ? `:${this.id}` : ''}`,
+      successStatus: `success${this.id ? `:${this.id}` : ''}`,
     };
   },
   computed: {
     handler() {
-      return this.todo ? () => this.loadByParamsFunc() : () => this.loadByHTTP();
+      return this.doFunc ? () => this.loadByParamsFunc() : () => this.loadByHTTP();
     },
   },
   watch: {
@@ -93,11 +95,8 @@ export default {
     params() {
       this.load();
     },
-    forcedLoadingInProgress(value) {
-      this.loadingInProgress = value;
-    },
-    forcedLoadFailed(value) {
-      this.loadFailed = value;
+    status(value) {
+      this.currentStatus = value;
     },
   },
   created() {
@@ -107,17 +106,16 @@ export default {
   },
   methods: {
     load() {
-      this.loadingInProgress = true;
-      this.loadFailed = false;
+      this.currentStatus = 'pending';
       this.handler()
         .then((response) => {
           this.$emit('success', response.data);
         })
         .catch(() => {
-          this.loadFailed = true;
+          this.currentStatus = 'error';
         })
         .then(() => {
-          this.loadingInProgress = false;
+          this.currentStatus = 'success';
         });
     },
     loadByHTTP() {
@@ -129,7 +127,7 @@ export default {
       });
     },
     loadByParamsFunc() {
-      return new Promise(() => this.todo());
+      return new Promise(() => this.doFunc());
     },
   },
 };

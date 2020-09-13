@@ -2,8 +2,8 @@
   <Loadable
     :auto-load="false"
     spinner-title="Загружаем корзину"
-    :forced-loading-in-progress="loadingInProgress"
-    :forced-load-failed="loadFailed"
+    :status="cartLoadStatus"
+    :do-func="() => loadCart()"
   >
     <template v-slot:content>
       <main
@@ -43,7 +43,7 @@
               >
                 <CartItem
                   v-for="item in products"
-                  :key="`${item.product.id}_${item.color}`"
+                  :key="`${item.product.id}`"
                   :item="item"
                 />
               </transition-group>
@@ -60,7 +60,7 @@
                 Мы&nbsp;посчитаем стоимость доставки на&nbsp;следующем этапе
               </p>
               <p class="cart__price">
-                Итого: <span>{{ animatedNumber | numberFormat }} ₽</span>
+                Итого: <span>{{ totalPrice | numberFormat }} ₽</span>
               </p>
 
               <button
@@ -109,7 +109,6 @@ export default {
     return {
       page: 1,
       itemsPerPage: 3,
-      tweenedNumber: 0,
       cartData: {},
     };
   },
@@ -133,32 +132,10 @@ export default {
     itemsAmount() {
       return paginationsComputedFunction.itemsAmount(this.productsInStore);
     },
-    animatedNumber() {
-      return this.tweenedNumber;
-    },
-    loadingInProgress() {
-      return this.$store.getters.getStatus({ statusName: 'loadCart' }) === 'loading';
-    },
   },
   watch: {
     products() {
       if (this.products.length === 0 && this.page > 1) this.page -= 1;
-    },
-    totalPrice: {
-      handler() {
-        const interval = setInterval(() => {
-          if (!this.offset) {
-            this.offset = Math.round((this.totalPrice - this.tweenedNumber) / 10);
-          }
-          if (this.tweenedNumber !== this.totalPrice) {
-            this.tweenedNumber += Math.abs(this.offset) < Math.abs(this.totalPrice - this.tweenedNumber) ? this.offset : this.totalPrice - this.tweenedNumber;
-          } else {
-            this.offset = null;
-            clearInterval(interval);
-          }
-        }, 50);
-      },
-      immediate: true,
     },
   },
 };

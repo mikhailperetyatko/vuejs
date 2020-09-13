@@ -3,12 +3,12 @@
     :auto-load="false"
     spinner-title=""
     spinner-color="green"
-    :forced-loading-in-progress="loadingInProgress"
-    :forced-load-failed="loadFailed"
+    :status="cartLoadStatus"
+    :do-func="() => loadCart()"
   >
     <template v-slot:content>
       <router-link
-        v-if="!loadingInProgress"
+        v-if="cartLoadStatus === 'success'"
         class="header__cart"
         aria-label="Корзина с товарами"
         :to="{ name: 'cart' }"

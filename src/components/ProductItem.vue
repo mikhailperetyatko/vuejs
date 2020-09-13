@@ -28,10 +28,11 @@
       />
     </fieldset>
     <Loadable
+      :id="product.id"
       :auto-load="false"
       spinner-title="Добавляем товар в корзину"
-      :forced-loading-in-progress="loadingInProgress && addToCartProductId !== null"
-      :forced-load-failed="loadFailed && addToCartProductId !== null"
+      :status="addProductToCartStatus"
+      :do-func="() => addToCart()"
     />
     <b v-if="productExistsInCart">
       Товар в
@@ -81,6 +82,9 @@ export default {
   watch: {
     currentColor() {
       this.addToCart();
+    },
+    status(value) {
+      if (value === 'success') this.addToCartProductId = null;
     },
   },
   methods: {

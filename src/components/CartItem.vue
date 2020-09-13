@@ -38,12 +38,25 @@
         <use xlink:href="#icon-close" />
       </svg>
     </button>
+    <p
+      v-show="updateProductCartStatus === `error:${item.product.id}`"
+      style="color:red"
+    >
+      При изменении товара произошла ошибка, изменения откатились.
+    </p>
+    <p
+      v-show="deleteProductCartStatus === `error:${item.product.id}`"
+      style="color:red"
+    >
+      При удалении товара произошла ошибка, изменения откатились.
+    </p>
   </li>
 </template>
 <script>
 import numberFormat from '@/helpers/numberFormat';
 import { mapActions } from 'vuex';
 import ProductAmount from '@/components/ProductAmount.vue';
+import Cartable from '@/components/Cartable.vue';
 
 export default {
   components: {
@@ -52,6 +65,7 @@ export default {
   filters: {
     numberFormat,
   },
+  extends: Cartable,
   props: {
     item: {
       type: Object,

@@ -79,11 +79,12 @@
                   В корзину
                 </button>
                 <Loadable
+                  :id="product.id"
                   :auto-load="false"
                   spinner-title="Добавляем товар в корзину"
                   spinner-color="white"
-                  :forced-loading-in-progress="loadingInProgress"
-                  :forced-load-failed="loadFailed"
+                  :status="addProductToCartStatus"
+                  :do-func="() => addToCart()"
                 />
                 <b v-if="productExistsInCart">
                   Товар в Козине.

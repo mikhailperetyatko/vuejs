@@ -11,14 +11,17 @@ export default new Vuex.Store({
     userAccessKey: null,
     cartProductsData: [],
     httpStatuses: {
-      loadCart: null,
-      addProductToCart: null,
-      updateProductCart: null,
-      deleteProductCart: null,
+      loadCart: 'pending',
+      addProductToCart: 'pending',
+      updateProductCart: 'pending',
+      deleteProductCart: 'pending',
     },
+
   },
   getters: {
-    getStatus: (state) => ({ statusName }) => state.httpStatuses[statusName],
+    getStatus: (state) => (statusName) => state.httpStatuses[statusName],
+    getStatuses: (state) => ([...statusesName]) => statusesName
+      .reduce((accum, status) => [...accum, state.httpStatuses[status]], []),
     product: (state) => ({ productId }) => (
       getProduct(state, { productId })
     ),
@@ -60,19 +63,19 @@ export default new Vuex.Store({
         amount: item.quantity,
       }));
     },
-    setLoadStatus(state, { statusName }) {
-      state.httpStatuses[statusName] = 'loading';
+    setSuccessStatus(state, { statusName, id }) {
+      state.httpStatuses[statusName] = `success${id ? `:${id}` : ''}`;
     },
-    setFailStatus(state, { statusName }) {
-      state.httpStatuses[statusName] = 'faild';
+    setErrorStatus(state, { statusName, id }) {
+      state.httpStatuses[statusName] = `error${id ? `:${id}` : ''}`;
     },
-    cancelStatus(state, { statusName }) {
-      state.httpStatuses[statusName] = null;
+    setPendingStatus(state, { statusName, id }) {
+      state.httpStatuses[statusName] = `pending${id ? `:${id}` : ''}`;
     },
   },
   actions: {
     loadCart(context) {
-      context.commit('setLoadStatus', { statusName: 'loadCart' });
+      context.commit('setPendingStatus', { statusName: 'loadCart' });
       return HTTP({
         method: 'get',
         url: '/api/baskets',
@@ -85,14 +88,14 @@ export default new Vuex.Store({
           }
           context.commit('updateCartProductsData', response.data.items);
           context.commit('syncCartProducts');
-          context.commit('cancelStatus', { statusName: 'loadCart' });
+          context.commit('setSuccessStatus', { statusName: 'loadCart' });
         })
         .catch(() => {
-          context.commit('setFailStatus', { statusName: 'loadCart' });
+          context.commit('setErrorStatus', { statusName: 'loadCart' });
         });
     },
     addProductToCart(context, { productId, amount }) {
-      context.commit('setLoadStatus', { statusName: 'addProductToCart' });
+      context.commit('setPendingStatus', { statusName: 'addProductToCart', id: productId });
       return HTTP({
         method: 'post',
         url: '/api/baskets/products',
@@ -105,14 +108,14 @@ export default new Vuex.Store({
         .then((response) => {
           context.commit('updateCartProductsData', response.data.items);
           context.commit('syncCartProducts');
-          context.commit('cancelStatus', { statusName: 'addProductToCart' });
+          context.commit('setSuccessStatus', { statusName: 'addProductToCart', id: productId });
         })
         .catch(() => {
-          context.commit('setFailStatus', { statusName: 'addProductToCart' });
+          context.commit('setErrorStatus', { statusName: 'addProductToCart', id: productId });
         });
     },
     updateProductCart(context, { productId, amount }) {
-      context.commit('setLoadStatus', { statusName: 'updateProductCart' });
+      context.commit('setPendingStatus', { statusName: 'updateProductCart', id: productId });
       context.commit('updateCartProduct', { productId, amount });
       return HTTP({
         method: 'put',
@@ -125,15 +128,15 @@ export default new Vuex.Store({
       })
         .then((response) => {
           context.commit('updateCartProductsData', response.data.items);
-          context.commit('cancelStatus', { statusName: 'updateCartProductsData' });
+          context.commit('setSuccessStatus', { statusName: 'updateProductCart', id: productId });
         })
         .catch(() => {
           context.commit('syncCartProducts');
-          context.commit('setFailStatus', { statusName: 'updateProductCart' });
+          context.commit('setErrorStatus', { statusName: 'updateProductCart', id: productId });
         });
     },
     deleteProductCart(context, { productId }) {
-      context.commit('setLoadStatus', { statusName: 'deleteProductCart' });
+      context.commit('setPendingStatus', { statusName: 'deleteProductCart', id: productId });
       context.commit('deleteCartProduct', { productId });
       return HTTP({
         method: 'delete',
@@ -145,11 +148,11 @@ export default new Vuex.Store({
       })
         .then((response) => {
           context.commit('updateCartProductsData', response.data.items);
-          context.commit('cancelStatus', { statusName: 'deleteProductCart' });
+          context.commit('setSuccessStatus', { statusName: 'deleteProductCart', id: productId });
         })
         .catch(() => {
           context.commit('syncCartProducts');
-          context.commit('setFailStatus', { name: 'deleteProductCart', value: true });
+          context.commit('setErrorStatus', { statusName: 'deleteProductCart', id: productId });
         });
     },
   },
