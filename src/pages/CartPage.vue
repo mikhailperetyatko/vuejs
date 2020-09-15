@@ -42,7 +42,7 @@
               >
                 <CartItem
                   v-for="item in products"
-                  :key="`${item.product.id}`"
+                  :key="item.product.id"
                   :item="item"
                 />
               </transition-group>

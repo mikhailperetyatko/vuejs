@@ -7,9 +7,18 @@
       <h1 class="content__title">
         Корзина
       </h1>
-      <span class="content__info">
-        {{ cartProductAmount | numberFormat | amountFormat }}
-      </span>
+      <Loadable
+        :auto-load="false"
+        spinner-title="Загружаем данные корзины"
+        :status="cartLoadStatus"
+        :do-func="() => loadCart()"
+      >
+        <template v-slot:content>
+          <span class="content__info">
+            {{ cartProductAmount | numberFormat | amountFormat }}
+          </span>
+        </template>
+      </Loadable>
     </div>
     <section class="cart">
       <form
@@ -28,15 +37,23 @@
               :placeholder="field.placeholder"
               :input-type="field.inputType"
               :error="formError[field.name]"
-              :extClass="field.extClass"
+              :ext-сlass="field.extClass"
             />
           </div>
           <div class="cart__options">
-            <h3 class="cart__title">Доставка</h3>
+            <h3 class="cart__title">
+              Доставка
+            </h3>
             <ul class="cart__options options">
               <li class="options__item">
                 <label class="options__label">
-                  <input class="options__radio sr-only" type="radio" name="delivery" value="0" checked="">
+                  <input
+                    class="options__radio sr-only"
+                    type="radio"
+                    name="delivery"
+                    value="0"
+                    checked=""
+                  >
                   <span class="options__value">
                     Самовывоз <b>бесплатно</b>
                   </span>
@@ -44,19 +61,30 @@
               </li>
               <li class="options__item">
                 <label class="options__label">
-                  <input class="options__radio sr-only" type="radio" name="delivery" value="500">
+                  <input
+                    class="options__radio sr-only"
+                    type="radio"
+                    name="delivery"
+                    value="500"
+                  >
                   <span class="options__value">
                     Курьером <b>500 ₽</b>
                   </span>
                 </label>
               </li>
             </ul>
-
-            <h3 class="cart__title">Оплата</h3>
+            <h3 class="cart__title">
+              Оплата
+            </h3>
             <ul class="cart__options options">
               <li class="options__item">
                 <label class="options__label">
-                  <input class="options__radio sr-only" type="radio" name="pay" value="card">
+                  <input
+                    class="options__radio sr-only"
+                    type="radio"
+                    name="pay"
+                    value="card"
+                  >
                   <span class="options__value">
                     Картой при получении
                   </span>
@@ -64,7 +92,12 @@
               </li>
               <li class="options__item">
                 <label class="options__label">
-                  <input class="options__radio sr-only" type="radio" name="pay" value="cash">
+                  <input
+                    class="options__radio sr-only"
+                    type="radio"
+                    name="pay"
+                    value="cash"
+                  >
                   <span class="options__value">
                     Наличными при получении
                   </span>
@@ -73,34 +106,34 @@
             </ul>
           </div>
         </div>
-
         <div class="cart__block">
-          <ul class="cart__orders">
-            <li class="cart__order">
-              <h3>Смартфон Xiaomi Redmi Note 7 Pro 6/128GB</h3>
-              <b>18 990 ₽</b>
-              <span>Артикул: 150030</span>
-            </li>
-            <li class="cart__order">
-              <h3>Гироскутер Razor Hovertrax 2.0ii</h3>
-              <b>4 990 ₽</b>
-              <span>Артикул: 150030</span>
-            </li>
-            <li class="cart__order">
-              <h3>Электрический дрифт-карт Razor Lil’ Crazy</h3>
-              <b>8 990 ₽</b>
-              <span>Артикул: 150030</span>
-            </li>
-          </ul>
-
-          <div class="cart__total">
-            <p>Доставка: <b>500 ₽</b></p>
-            <p>Итого: <b>3</b> товара на сумму <b>37 970 ₽</b></p>
-          </div>
-
-          <button class="cart__button button button--primery" type="submit">
-            Оформить заказ
-          </button>
+          <Loadable
+            :auto-load="false"
+            spinner-title="Загружаем данные корзины"
+            :status="cartLoadStatus"
+            :do-func="() => loadCart()"
+            spinner-color="white"
+          >
+            <template v-slot:content>
+              <ul class="cart__orders">
+                <CartOrderItem
+                  v-for="item in products"
+                  :key="item.product.id"
+                  :item="item"
+                />
+              </ul>
+              <div class="cart__total">
+                <p>Доставка: <b>500 ₽</b></p>
+                <p>Итого: <b>{{ totalCartItems | amountFormat(['позиция', 'позиции', 'позиций']) }}</b> ({{ totalCartProducts | amountFormat }}) на сумму <b>{{ totalPrice | numberFormat }} ₽</b></p>
+              </div>
+              <button
+                class="cart__button button button--primery"
+                type="submit"
+              >
+                Оформить заказ
+              </button>
+            </template>
+          </Loadable>
         </div>
         <div class="cart__error form__error-block">
           <h4>Заявка не отправлена!</h4>
@@ -115,16 +148,21 @@
 <script>
 import Breadcrumbs from '@/components/Breadcrumbs.vue';
 import Cartable from '@/components/Cartable.vue';
+import Loadable from '@/components/Loadable.vue';
+import CartOrderItem from '@/components/CartOrderItem.vue';
 import BaseFormInput from '@/components/BaseFormInput.vue';
 import BaseFormTextarea from '@/components/BaseFormTextarea.vue';
 import numberFormat from '@/helpers/numberFormat';
 import amountFormat from '@/helpers/amountFormat';
+import { mapGetters } from 'vuex';
 
 export default {
   components: {
     Breadcrumbs,
     BaseFormInput,
     BaseFormTextarea,
+    Loadable,
+    CartOrderItem,
   },
   filters: {
     numberFormat,
@@ -169,7 +207,7 @@ export default {
         {
           title: 'Комментарий к заказу',
           placeholder: 'Ваши пожелания',
-          name: 'comments',
+          name: 'comment',
           component: BaseFormTextarea,
           extClass: 'form__input--area',
         },
@@ -191,6 +229,12 @@ export default {
         },
       ];
     },
+    ...mapGetters({
+      products: 'cartDetailProducts',
+      totalPrice: 'totalCartPrice',
+      totalCartItems: 'totalCartItems',
+      totalCartProducts: 'totalCartProducts',
+    }),
   },
 };
 </script>

@@ -40,6 +40,16 @@ export default new Vuex.Store({
     totalCartPrice(state, getters) {
       return getters.cartDetailProducts.reduce((total, item) => (total + item.product.price * item.amount), 0);
     },
+    totalCartItems(state) {
+      return state.cartProducts.length;
+    },
+    totalCartProducts(state) {
+      return state.cartProducts.reduce((amount, item) => amount + item.amount, 0);
+    },
+    totalCartItemPrice: (state) => (productId) => {
+      const item = state.cartProductsData.find((el) => el.product.id === productId);
+      return item.quantity * item.product.price;
+    },
   },
   mutations: {
     updateCartProduct(state, { productId, amount }) {
@@ -71,6 +81,10 @@ export default new Vuex.Store({
     },
     setPendingStatus(state, { statusName, id }) {
       state.httpStatuses[statusName] = `pending${id ? `:${id}` : ''}`;
+    },
+    resetCart(state) {
+      state.cartProducts = [];
+      state.cartProductsData = [];
     },
   },
   actions: {
