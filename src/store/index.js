@@ -10,11 +10,14 @@ export default new Vuex.Store({
     cartProducts: [],
     userAccessKey: null,
     cartProductsData: [],
+    orderData: {},
+    orderError: {},
     httpStatuses: {
       loadCart: 'pending',
       addProductToCart: 'pending',
       updateProductCart: 'pending',
       deleteProductCart: 'pending',
+      cartToOrder: 'pending',
     },
 
   },
@@ -49,6 +52,12 @@ export default new Vuex.Store({
     totalCartItemPrice: (state) => (productId) => {
       const item = state.cartProductsData.find((el) => el.product.id === productId);
       return item.quantity * item.product.price;
+    },
+    order(state) {
+      return {
+        data: state.orderData,
+        error: state.orderError,
+      };
     },
   },
   mutations: {
@@ -85,6 +94,16 @@ export default new Vuex.Store({
     resetCart(state) {
       state.cartProducts = [];
       state.cartProductsData = [];
+    },
+    resetOrder(state) {
+      state.orderData = {};
+      state.orderError = {};
+    },
+    updateOrderData(state, response) {
+      state.orderData = response;
+    },
+    updateOrderError(state, error) {
+      state.orderError = error;
     },
   },
   actions: {
@@ -167,6 +186,27 @@ export default new Vuex.Store({
         .catch(() => {
           context.commit('syncCartProducts');
           context.commit('setErrorStatus', { statusName: 'deleteProductCart', id: productId });
+        });
+    },
+    cartToOrder(context, requestBody) {
+      context.commit('setPendingStatus', { statusName: 'cartToOrder' });
+      context.commit('resetOrder');
+      return HTTP({
+        method: 'post',
+        url: '/api/orders',
+        params: { userAccessKey: context.state.userAccessKey },
+        data: {
+          ...requestBody,
+        },
+      })
+        .then((response) => {
+          context.commit('setSuccessStatus', { statusName: 'cartToOrder' });
+          context.commit('updateOrderData', response.data);
+          context.commit('resetCart');
+        })
+        .catch((error) => {
+          context.commit('setErrorStatus', { statusName: 'cartToOrder' });
+          context.commit('updateOrderError', error.response.data.error);
         });
     },
   },

@@ -15,6 +15,9 @@ export default {
     deleteProductCartStatus() {
       return this.$store.getters.getStatus('deleteProductCart');
     },
+    cartToOrderStatus() {
+      return this.$store.getters.getStatus('cartToOrder');
+    },
     cartProductAmount() {
       return this.$store.getters.cartDetailProducts.length;
     },

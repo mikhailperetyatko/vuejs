@@ -1,7 +1,9 @@
-export default (value, pattern) => (
-  pattern.split('|').reduce((errors, rule) => {
+export default (value, pattern = []) => {
+  const currentPattern = typeof pattern === 'string' ? pattern.split('|') : pattern;
+  return currentPattern.reduce((errors, rule) => {
+    const typeOfValue = typeof value;
     if (rule === 'required' && (
-      (typeof value === 'object' && !Object.keys(value).length)
+      (typeOfValue === 'object' && !Object.keys(value).length)
       || !value
     )) {
       errors.push('обязательное поле');
@@ -12,14 +14,19 @@ export default (value, pattern) => (
     if (rule === 'integer' && (typeof value !== 'number' || value % 1 > 0)) {
       errors.push('только целочисленное значение');
     }
+    const valueLength = typeOfValue === 'number' ? value : value.length;
     if (rule.search('min') > -1) {
       const min = +rule.split(':')[1];
-      if (value < min) errors.push(`не менее ${min}`);
+      if (valueLength < min) errors.push(`не менее ${min}`);
     }
     if (rule.search('max') > -1) {
       const max = +rule.split(':')[1];
-      if (value > max) errors.push(`не более ${max}`);
+      if (valueLength > max) errors.push(`не более ${max}`);
+    }
+    if (rule.search('regex') > -1 && value) {
+      const result = value.match(new RegExp(rule.split(':')[1], 'g'));
+      if (result === null || result[0] !== value) errors.push('ошибочный формат поля');
     }
     return errors;
-  }, [])
-);
+  }, []);
+};

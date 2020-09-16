@@ -19,7 +19,7 @@
       Еще раз
     </button>
   </div>
-  <div v-else>
+  <div v-else-if="currentStatus === successStatus">
     <slot
       name="content"
     />
