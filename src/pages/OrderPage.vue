@@ -105,26 +105,19 @@
             </ul>
           </div>
         </div>
-        <div class="cart__block">
-          <Loadable
-            :auto-load="false"
-            spinner-title="Загружаем данные корзины"
-            :status="cartLoadStatus"
-            :do-func="() => loadCart()"
-            spinner-color="white"
-          >
-            <template v-slot:content>
-              <ul class="cart__orders">
-                <CartOrderItem
-                  v-for="item in products"
-                  :key="item.product.id"
-                  :item="item"
-                />
-              </ul>
-              <div class="cart__total">
-                <p>Доставка: <b>500 ₽</b></p>
-                <p>Итого: <b>{{ totalCartItems | amountFormat(['позиция', 'позиции', 'позиций']) }}</b> ({{ totalCartProducts | amountFormat }}) на сумму <b>{{ totalPrice | numberFormat }} ₽</b></p>
-              </div>
+        <Loadable
+          :auto-load="false"
+          spinner-title="Загружаем данные корзины"
+          :status="cartLoadStatus"
+          :do-func="() => loadCart()"
+        >
+          <template v-slot:content>
+            <CartOrderBlock
+              :products="products"
+              :total-price="totalPrice"
+              :total-cart-items="totalCartItems"
+              :total-cart-products="totalCartProducts"
+            >
               <button
                 class="cart__button button button--primery"
                 type="submit"
@@ -142,9 +135,9 @@
                   Заказ оформлен!
                 </template>
               </Loadable>
-            </template>
-          </Loadable>
-        </div>
+            </CartOrderBlock>
+          </template>
+        </Loadable>
         <div
           v-show="formErrorMessage"
           class="cart__error form__error-block"
@@ -162,13 +155,13 @@
 import Breadcrumbs from '@/components/Breadcrumbs.vue';
 import Cartable from '@/components/Cartable.vue';
 import Loadable from '@/components/Loadable.vue';
-import CartOrderItem from '@/components/CartOrderItem.vue';
+import CartOrderBlock from '@/components/CartOrderBlock.vue';
 import BaseFormInput from '@/components/BaseFormInput.vue';
 import BaseFormTextarea from '@/components/BaseFormTextarea.vue';
-import numberFormat from '@/helpers/numberFormat';
-import amountFormat from '@/helpers/amountFormat';
 import { mapGetters, mapActions } from 'vuex';
 import validate from '@/helpers/validate';
+import numberFormat from '@/helpers/numberFormat';
+import amountFormat from '@/helpers/amountFormat';
 
 export default {
   components: {
@@ -176,7 +169,7 @@ export default {
     BaseFormInput,
     BaseFormTextarea,
     Loadable,
-    CartOrderItem,
+    CartOrderBlock,
   },
   filters: {
     numberFormat,
