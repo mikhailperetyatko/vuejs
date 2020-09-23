@@ -14,7 +14,7 @@
   <div
     v-else-if="currentStatus === errorStatus"
   >
-    Произошла ошибка
+    Произошла ошибка: {{ currentErrorMessage || '' }}
     <button @click="load()">
       Еще раз
     </button>
@@ -74,6 +74,10 @@ export default {
       default: null,
       type: Number,
     },
+    errorMessage: {
+      default: null,
+      type: String,
+    },
   },
   data() {
     return {
@@ -81,6 +85,7 @@ export default {
       pendingStatus: `pending${this.id ? `:${this.id}` : ''}`,
       errorStatus: `error${this.id ? `:${this.id}` : ''}`,
       successStatus: `success${this.id ? `:${this.id}` : ''}`,
+      currentErrorMessage: this.errorMessage ?? '',
     };
   },
   computed: {
@@ -98,6 +103,9 @@ export default {
     status(value) {
       this.currentStatus = value;
     },
+    errorMessage(value) {
+      this.currentErrorMessage = value;
+    },
   },
   created() {
     if (this.autoLoad) {
@@ -111,8 +119,9 @@ export default {
         .then((response) => {
           this.$emit('success', response.data);
         })
-        .catch(() => {
+        .catch((error) => {
           this.currentStatus = 'error';
+          this.currentErrorMessage = error.response.data.error;
         })
         .then(() => {
           this.currentStatus = 'success';

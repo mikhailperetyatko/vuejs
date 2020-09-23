@@ -282,6 +282,11 @@ export default {
             if (Object.keys(this.order.error).length) {
               this.formError = this.order.error.request ?? {};
               this.formErrorMessage = this.order.error.message;
+            } else {
+              this.$router.push({
+                name: 'orderInfo',
+                params: { id: this.order.data.id },
+              });
             }
           });
       } else {

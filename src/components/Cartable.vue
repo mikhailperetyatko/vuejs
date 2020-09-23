@@ -21,6 +21,9 @@ export default {
     cartProductAmount() {
       return this.$store.getters.cartDetailProducts.length;
     },
+    orderInfoStatus() {
+      return this.$store.getters.getStatus('orderInfo');
+    },
   },
   methods: {
     ...mapActions(['loadCart']),

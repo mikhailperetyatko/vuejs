@@ -18,6 +18,7 @@ export default new Vuex.Store({
       updateProductCart: 'pending',
       deleteProductCart: 'pending',
       cartToOrder: 'pending',
+      orderInfo: 'pending',
     },
 
   },
@@ -206,6 +207,22 @@ export default new Vuex.Store({
         })
         .catch((error) => {
           context.commit('setErrorStatus', { statusName: 'cartToOrder' });
+          context.commit('updateOrderError', error.response.data.error);
+        });
+    },
+    loadOrderInfo(context, orderId) {
+      context.commit('setPendingStatus', { statusName: 'orderInfo' });
+      return HTTP({
+        method: 'get',
+        url: `/api/orders/${orderId}`,
+        params: { userAccessKey: context.state.userAccessKey },
+      })
+        .then((response) => {
+          context.commit('setSuccessStatus', { statusName: 'orderInfo' });
+          context.commit('updateOrderData', response.data);
+        })
+        .catch((error) => {
+          context.commit('setErrorStatus', { statusName: 'orderInfo' });
           context.commit('updateOrderError', error.response.data.error);
         });
     },
