@@ -114,20 +114,20 @@ export default {
   },
   methods: {
     load() {
-      this.currentStatus = 'pending';
       this.handler()
         .then((response) => {
           this.$emit('success', response.data);
         })
         .catch((error) => {
-          this.currentStatus = 'error';
+          this.currentStatus = this.errorStatus;
           this.currentErrorMessage = error.response.data.error;
         })
         .then(() => {
-          this.currentStatus = 'success';
+          this.currentStatus = this.successStatus;
         });
     },
     loadByHTTP() {
+      this.currentStatus = this.pendingStatus;
       return HTTP({
         method: this.method,
         url: this.url,

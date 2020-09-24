@@ -34,6 +34,7 @@ export default new Vuex.Store({
         const { product } = state.cartProductsData.find((el) => el.product.id === item.productId);
         return {
           ...item,
+          quantity: item.amount,
           product: {
             ...product,
             img: product.image.file.url,
@@ -43,16 +44,6 @@ export default new Vuex.Store({
     },
     totalCartPrice(state, getters) {
       return getters.cartDetailProducts.reduce((total, item) => (total + item.product.price * item.amount), 0);
-    },
-    totalCartItems(state) {
-      return state.cartProducts.length;
-    },
-    totalCartProducts(state) {
-      return state.cartProducts.reduce((amount, item) => amount + item.amount, 0);
-    },
-    totalCartItemPrice: (state) => (productId) => {
-      const item = state.cartProductsData.find((el) => el.product.id === productId);
-      return item.quantity * item.product.price;
     },
     order(state) {
       return {

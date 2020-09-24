@@ -114,14 +114,11 @@
           <template v-slot:content>
             <CartOrderBlock
               :products="products"
-              :total-price="totalPrice"
-              :total-cart-items="totalCartItems"
-              :total-cart-products="totalCartProducts"
             >
               <button
                 class="cart__button button button--primery"
                 type="submit"
-                :disabled="status === 'pending'"
+                :disabled="status === 'pending' || !$store.state.cartProducts.length"
               >
                 Оформить заказ
               </button>
@@ -244,9 +241,6 @@ export default {
     },
     ...mapGetters({
       products: 'cartDetailProducts',
-      totalPrice: 'totalCartPrice',
-      totalCartItems: 'totalCartItems',
-      totalCartProducts: 'totalCartProducts',
       order: 'order',
     }),
     status() {
@@ -273,12 +267,12 @@ export default {
     toOrder() {
       const validatedResult = this.getValidate();
       this.httpSend = false;
+      this.formError = {};
+      this.formErrorMessage = '';
       if (validatedResult.result) {
         this.httpSend = true;
         this.cartToOrder(this.formData)
           .then(() => {
-            this.formError = {};
-            this.formErrorMessage = '';
             if (Object.keys(this.order.error).length) {
               this.formError = this.order.error.request ?? {};
               this.formErrorMessage = this.order.error.message;

@@ -5,12 +5,11 @@
     <h3>{{ item.product.title }}</h3>
     <b>{{ totalPrice | numberFormat }} ₽</b>
     <span>Артикул: {{ item.product.id }}</span>
-    <span>Количество: {{ item.amount | numberFormat }}</span>
+    <span>Количество: {{ item.quantity | numberFormat }}</span>
   </li>
 </template>
 <script>
 import numberFormat from '@/helpers/numberFormat';
-import { mapGetters } from 'vuex';
 
 export default {
   filters: {
@@ -23,9 +22,8 @@ export default {
     },
   },
   computed: {
-    ...mapGetters(['totalCartItemPrice']),
     totalPrice() {
-      return this.totalCartItemPrice(this.item.product.id);
+      return this.item.quantity * this.item.product.price;
     },
   },
 };
