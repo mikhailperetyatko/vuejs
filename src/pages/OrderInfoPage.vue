@@ -1,7 +1,7 @@
 <template>
   <Loadable
     spinner-title="Загружаем данные о заказе"
-    :do-func="() => loadOrderInfo($route.params.id)"
+    :do-func="loadOrder()"
     :status="orderInfoStatus"
     :error-message="order.error.message"
   >
@@ -110,8 +110,23 @@ export default {
       ];
     },
   },
+  watch: {
+    '$route.params.id': {
+      handler() {
+        this.loadOrderInfo(this.$route.params.id);
+      },
+    },
+  },
   methods: {
     ...mapActions(['loadOrderInfo']),
+    loadOrder() {
+      return () => {
+        if (
+          !this.order.data
+          || this.order.data.id !== this.$route.params.id
+        ) this.loadOrderInfo(this.$route.params.id);
+      };
+    },
   },
 };
 </script>

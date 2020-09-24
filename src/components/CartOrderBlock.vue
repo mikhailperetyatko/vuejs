@@ -32,17 +32,16 @@ export default {
       type: Array,
       default: () => [],
     },
-    totalPrice: {
-      type: Number,
-      default: 0,
+  },
+  computed: {
+    totalPrice() {
+      return this.products.reduce((total, item) => (total + item.product.price * item.quantity), 0);
     },
-    totalCartItems: {
-      type: Number,
-      default: 0,
+    totalCartItems() {
+      return this.products.length;
     },
-    totalCartProducts: {
-      type: Number,
-      default: 0,
+    totalCartProducts() {
+      return this.products.reduce((amount, item) => amount + item.quantity, 0);
     },
   },
 };
