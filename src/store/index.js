@@ -83,6 +83,9 @@ export default new Vuex.Store({
     setPendingStatus(state, { statusName, id }) {
       state.httpStatuses[statusName] = `pending${id ? `:${id}` : ''}`;
     },
+    setNullStatus(state, { statusName }) {
+      state.httpStatuses[statusName] = null;
+    },
     resetCart(state) {
       state.cartProducts = [];
       state.cartProductsData = [];

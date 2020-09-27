@@ -118,14 +118,14 @@
               <button
                 class="cart__button button button--primery"
                 type="submit"
-                :disabled="status === 'pending' || !$store.state.cartProducts.length"
+                :disabled="cartToOrderStatus === 'pending' || !$store.state.cartProducts.length"
               >
                 Оформить заказ
               </button>
               <Loadable
                 :auto-load="false"
                 spinner-title="Отправляем запрос"
-                :status="status"
+                :status="cartToOrderStatus"
                 spinner-color="white"
               >
                 <template v-slot:content>
@@ -243,10 +243,9 @@ export default {
       products: 'cartDetailProducts',
       order: 'order',
     }),
-    status() {
-      if (!this.httpSend) return null;
-      return this.cartToOrderStatus;
-    },
+  },
+  created() {
+    this.$store.commit('setNullStatus', { statusName: 'cartToOrder' });
   },
   methods: {
     ...mapActions(['cartToOrder']),

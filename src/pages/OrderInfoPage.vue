@@ -121,6 +121,7 @@ export default {
     ...mapActions(['loadOrderInfo']),
     loadOrder() {
       return () => {
+        this.$store.commit('setSuccessStatus', { statusName: 'orderInfo' });
         if (
           !this.order.data
           || this.order.data.id !== this.$route.params.id
