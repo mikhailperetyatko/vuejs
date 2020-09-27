@@ -1,9 +1,8 @@
 import axios from 'axios';
-import { BASE_API_URL } from '@/config';
 import timeoutWithPromise from '@/helpers/timeoutWithPromise';
 
 const http = axios.create({
-  baseURL: BASE_API_URL,
+  baseURL: 'http://vue-study.dev.creonit.ru',
 });
 
 export default ({
