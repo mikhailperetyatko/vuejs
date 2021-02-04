@@ -2,7 +2,7 @@ import axios from 'axios';
 import timeoutWithPromise from '@/helpers/timeoutWithPromise';
 
 const http = axios.create({
-  baseURL: 'http://vue-study.dev.creonit.ru',
+  baseURL: 'https://vue-study.dev.creonit.ru',
 });
 
 export default ({
@@ -10,7 +10,7 @@ export default ({
   url,
   params,
   data,
-}) => timeoutWithPromise()
+}) => timeoutWithPromise(0)
   .then(() => http({
     method,
     url,
